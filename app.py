@@ -115,8 +115,13 @@ def pedal_status(data):
     write_to_screen(str(selected_preset))
 
     toggle_led(dict_drive, data[dict_drive])
+    print(dict_drive + ' ' + data[dict_drive])
+
     toggle_led(dict_delay, data[dict_delay])
+    print(dict_delay + ' ' + data[dict_delay])
+
     toggle_led(dict_mod, data[dict_mod])
+    print(dict_mod + ' ' + data[dict_mod])
 
 
 @sio.on('refresh-onoff')
