@@ -192,8 +192,7 @@ if __name__ == '__main__':
     while not connected_to_amp:
         pass
 
-    # Get the current
-
+    # Setup the footswitch functions
     preset_1_button.when_pressed = preset_1
     preset_2_button.when_pressed = preset_2
     preset_3_button.when_pressed = preset_3
