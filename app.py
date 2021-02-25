@@ -23,6 +23,7 @@ sio = socketio.Client()
 
 connected_to_server = False
 connected_to_amp = False
+selected_preset = 0
 
 preset_1_button = Button(2)
 preset_2_button = Button(3)
@@ -106,12 +107,40 @@ def connection_message(data):
         connected_to_amp = True
 
 
+@sio.on('pedal-status')
+def pedal_status(data):
+    # Listen for Pedal status updates and update OLED/LEDs as necessary
+    global selected_preset
+    selected_preset = data[dict_preset]
+    write_to_screen(str(selected_preset))
+
+    toggle_led(dict_drive, data[dict_drive])
+    toggle_led(dict_delay, data[dict_delay])
+    toggle_led(dict_mod, data[dict_mod])
+
+
 @sio.on('refresh-onoff')
 def refresh_onoff(data):
     # Listen for changes in On/Off state to update LEDs
     state = data[dict_state]
     effect_type = data[dict_effect_type]
+    toggle_led(effect_type, state)
+    print(effect_type + '' + state)    
 
+
+@sio.on('update-preset')
+def update_preset_display(data):
+    # Listen for change of Preset to update OLED screen
+    global selected_preset
+    selected_preset = data['value']
+    write_to_screen(str(selected_preset))
+
+####################
+# Utility Functions
+####################
+
+
+def toggle_led(effect_type, state):
     if effect_type == dict_drive:
         if state == dict_On:
             drive_led.on
@@ -128,21 +157,14 @@ def refresh_onoff(data):
         elif state == dict_Off:
             mod_led.off
 
-    # TODO: Display this change on OLED screen
-    print(effect_type + ' ' + state)
 
-@sio.on('update-preset')
-def update_preset_display(data):
-    # Listen for change of Preset to update OLED screen
-    preset = data['value']
-
-    #TODO: Display this change on OLED screen
-    print('Preset is ' + preset)
-
+def write_to_screen(message):    
+    print(message)
 
 ########################
 # Main application loop
 ########################
+
 
 if __name__ == '__main__':
 
@@ -157,6 +179,8 @@ if __name__ == '__main__':
     while not connected_to_amp:
         pass
 
+    # Get the current
+
     preset_1_button.when_pressed = preset_1
     preset_2_button.when_pressed = preset_2
     preset_3_button.when_pressed = preset_3
@@ -165,4 +189,3 @@ if __name__ == '__main__':
     drive_button.when_pressed = drive_pedal
     delay_button.when_pressed = delay_pedal
     mod_button.when_pressed = mod_pedal
-
