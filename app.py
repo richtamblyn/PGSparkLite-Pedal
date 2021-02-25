@@ -7,8 +7,6 @@
 ##############################################################
 
 
-from signal import pause
-
 import socketio
 from gpiozero import LED, Button
 
@@ -133,6 +131,14 @@ def refresh_onoff(data):
     # TODO: Display this change on OLED screen
     print(effect_type + ' ' + state)
 
+@sio.on('update-preset')
+def update_preset_display(data):
+    # Listen for change of Preset to update OLED screen
+    preset = data['value']
+
+    #TODO: Display this change on OLED screen
+    print('Preset is ' + preset)
+
 
 ########################
 # Main application loop
@@ -160,4 +166,3 @@ if __name__ == '__main__':
     delay_button.when_pressed = delay_pedal
     mod_button.when_pressed = mod_pedal
 
-    pause()

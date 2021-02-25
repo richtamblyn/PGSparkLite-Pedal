@@ -1,2 +1,3 @@
 requests
+rpi-gpio
 gpizero
