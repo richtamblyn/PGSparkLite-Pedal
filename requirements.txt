@@ -1,3 +1,6 @@
+Adafruit-GPIO
+Adafruit-PureIO
+Adafruit-SSD1306
 requests
 rpi-gpio
 gpizero
