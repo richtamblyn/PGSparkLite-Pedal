@@ -15,11 +15,15 @@ from lib.common import (dict_change_preset, dict_connection_success,
                         dict_mod, dict_Off, dict_On, dict_preset, dict_state,
                         dict_toggle_effect_onoff)
 
+from lib.display import oled_display
+
 ########
 # Setup
 ########
 
 sio = socketio.Client()
+
+display = oled_display()
 
 connected_to_server = False
 connected_to_amp = False
@@ -80,17 +84,17 @@ def preset_4():
 def connect():
     global connected_to_server
     connected_to_server = True
-    print("Connected to PGSparkLite service...")
+    display.display_status("Connected to PGSparkLite service...")
 
 
 @sio.event
 def connect_error():
-    print("The connection failed!")
+    display.display_status("The connection failed!")
 
 
 @sio.event
 def disconnect():
-    print("Disconnected.")
+    display.display_status("Disconnected.")
 
 
 #############
@@ -102,7 +106,7 @@ def connection_message(data):
     # Listen for connection status messages
     global connected_to_amp
 
-    print(data[dict_message])
+    display.display_status(data[dict_message])
     if data[dict_message] == dict_connection_success:
         connected_to_amp = True
 
@@ -112,7 +116,7 @@ def pedal_status(data):
     # Listen for Pedal status updates and update OLED/LEDs as necessary
     global selected_preset
     selected_preset = int(data[dict_preset]) + 1
-    write_to_screen(str(selected_preset))
+    display.show_selected_preset(str(selected_preset))
 
     toggle_led(dict_drive, data[dict_drive])
     print(dict_drive + ' ' + data[dict_drive])
@@ -138,7 +142,7 @@ def update_preset_display(data):
     # Listen for change of Preset to update OLED screen
     global selected_preset
     selected_preset = int(data['value']) + 1
-    write_to_screen(str(selected_preset))
+    display.show_selected_preset(str(selected_preset))
 
 ####################
 # Utility Functions
@@ -161,10 +165,10 @@ def toggle_led(effect_type, state):
             mod_led.on
         elif state == dict_Off:
             mod_led.off
+    else:
+        print('Effect_type not currently supported')
 
 
-def write_to_screen(message):    
-    print(message)
 
 ########################
 # Main application loop
