@@ -111,7 +111,7 @@ def connection_message(data):
 def pedal_status(data):
     # Listen for Pedal status updates and update OLED/LEDs as necessary
     global selected_preset
-    selected_preset = data[dict_preset]
+    selected_preset = int(data[dict_preset]) + 1
     write_to_screen(str(selected_preset))
 
     toggle_led(dict_drive, data[dict_drive])
@@ -125,14 +125,14 @@ def refresh_onoff(data):
     state = data[dict_state]
     effect_type = data[dict_effect_type]
     toggle_led(effect_type, state)
-    print(effect_type + '' + state)    
+    print(effect_type + ' ' + state)    
 
 
 @sio.on('update-preset')
 def update_preset_display(data):
     # Listen for change of Preset to update OLED screen
     global selected_preset
-    selected_preset = data['value']
+    selected_preset = int(data['value']) + 1
     write_to_screen(str(selected_preset))
 
 ####################
