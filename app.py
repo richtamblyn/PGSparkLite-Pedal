@@ -10,11 +10,15 @@
 import socketio
 from gpiozero import LED, Button
 
+from config import (delay_button_gpio, delay_led_gpio, display_res,
+                    drive_button_gpio, drive_led_gpio, i2c_address,
+                    mod_button_gpio, mod_led_gpio, preset_1_button_gpio,
+                    preset_2_button_gpio, preset_3_button_gpio,
+                    preset_4_button_gpio)
 from lib.common import (dict_change_preset, dict_connection_success,
                         dict_delay, dict_drive, dict_effect_type, dict_message,
                         dict_mod, dict_Off, dict_On, dict_preset, dict_state,
                         dict_toggle_effect_onoff)
-
 from lib.display import oled_display
 
 ########
@@ -23,25 +27,25 @@ from lib.display import oled_display
 
 sio = socketio.Client()
 
-display = oled_display()
+display = oled_display(i2c_address, display_res)
 
 connected_to_server = False
 connected_to_amp = False
 selected_preset = 0
 
-preset_1_button = Button(2)
-preset_2_button = Button(3)
-preset_3_button = Button(4)
-preset_4_button = Button(17)
+preset_1_button = Button(preset_1_button_gpio)
+preset_2_button = Button(preset_2_button_gpio)
+preset_3_button = Button(preset_3_button_gpio)
+preset_4_button = Button(preset_4_button_gpio)
 
-drive_led = LED(14)
-drive_button = Button(15)
+drive_led = LED(drive_led_gpio)
+drive_button = Button(drive_button_gpio)
 
-delay_led = LED(27)
-delay_button = Button(22)
+delay_led = LED(delay_led_gpio)
+delay_button = Button(delay_button_gpio)
 
-mod_led = LED(23)
-mod_button = Button(24)
+mod_led = LED(mod_led_gpio)
+mod_button = Button(mod_button_gpio)
 
 ###################
 # Switch Functions

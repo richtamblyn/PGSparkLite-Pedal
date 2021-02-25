@@ -17,18 +17,15 @@ from lib.mock_oled import mock_oled
 
 class oled_display:
 
-    def __init__(self):
+    def __init__(self, i2c_address, display_res):
 
-        RST = None
+        RST = None        
 
-        # Change the line below to match the result of 'i2cdetect -y 1' (if not 3c)
-        i2c_address = 0x3C
-
-        try:
-            # Comment/uncomment the lines below depending on your OLED screen resolution
-            self.disp = Adafruit_SSD1306.SSD1306_128_64(
-                rst=RST, i2c_address=i2c_address)  # 128 x 64
-            # self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
+        try:            
+            if display_res == '128x64':
+                self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=i2c_address)
+            else:                
+                self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
 
             self.disp.begin()
             self.disp.clear()
