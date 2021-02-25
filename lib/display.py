@@ -29,14 +29,14 @@ class oled_display:
             self.disp = Adafruit_SSD1306.SSD1306_128_64(
                 rst=RST, i2c_address=i2c_address)  # 128 x 64
             # self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
+
+            self.disp.begin()
+            self.disp.clear()
+            self.disp.display()
         except:
             # If we're debugging on different platform or without a physical screen then spin up our mock OLED class
             self.disp = mock_oled()
             print('ERROR: Could not connect to display. Using mock OLED instead')
-
-        self.disp.begin()
-        self.disp.clear()
-        self.disp.display()
 
         # Initialise the screen
         self.width = self.disp.width
