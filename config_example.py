@@ -6,6 +6,12 @@
 # changes when updating the Pedal code.
 ###########################################################################
 
+##################################
+# Enable debug logging to console
+##################################
+
+debug_mode = False
+
 ############################################################################
 # OLED Display Address
 # Change the line below to match the result of 'i2cdetect -y 1' (if not 3c)
@@ -39,3 +45,9 @@ delay_button_gpio = 22
 
 mod_led_gpio = 23
 mod_button_gpio = 24
+
+#####################################################################
+# Time in seconds to wait before recognising a new change in a Pedal
+#####################################################################
+
+pedal_bounce_time = 2
