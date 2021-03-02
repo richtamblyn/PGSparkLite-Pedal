@@ -3,4 +3,4 @@ Adafruit-PureIO
 Adafruit-SSD1306
 requests
 rpi-gpio
-gpizero
+gpiozero
