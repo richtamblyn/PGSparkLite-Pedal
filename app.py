@@ -7,14 +7,16 @@
 ##############################################################
 
 
+from signal import SIGINT, signal
+
 import socketio
 from gpiozero import LED, Button
 
-from config import (delay_button_gpio, delay_led_gpio, display_res,
+from config import (debug_mode, delay_button_gpio, delay_led_gpio, display_res,
                     drive_button_gpio, drive_led_gpio, i2c_address,
                     mod_button_gpio, mod_led_gpio, pedal_bounce_time,
                     preset_1_button_gpio, preset_2_button_gpio,
-                    preset_3_button_gpio, preset_4_button_gpio, debug_mode)
+                    preset_3_button_gpio, preset_4_button_gpio)
 from lib.common import (dict_change_preset, dict_connection_success,
                         dict_delay, dict_drive, dict_effect_type, dict_message,
                         dict_mod, dict_Off, dict_On, dict_preset, dict_state,
@@ -33,14 +35,10 @@ connected_to_server = False
 connected_to_amp = False
 selected_preset = 0
 
-preset_1_button = Button(pin=preset_1_button_gpio,
-                         bounce_time=pedal_bounce_time)
-preset_2_button = Button(pin=preset_2_button_gpio,
-                         bounce_time=pedal_bounce_time)
-preset_3_button = Button(pin=preset_3_button_gpio,
-                         bounce_time=pedal_bounce_time)
-preset_4_button = Button(pin=preset_4_button_gpio,
-                         bounce_time=pedal_bounce_time)
+preset_1_button = Button(pin=preset_1_button_gpio, bounce_time=pedal_bounce_time)
+preset_2_button = Button(pin=preset_2_button_gpio, bounce_time=pedal_bounce_time)
+preset_3_button = Button(pin=preset_3_button_gpio, bounce_time=pedal_bounce_time)
+preset_4_button = Button(pin=preset_4_button_gpio, bounce_time=pedal_bounce_time)
 
 drive_led = LED(pin=drive_led_gpio)
 drive_button = Button(pin=drive_button_gpio, bounce_time=pedal_bounce_time)
@@ -167,11 +165,18 @@ def toggle_led(effect_type, state):
             print('Effect_type not currently supported')
 
 
+def keyboard_exit_handler(signal_received, frame):
+    sio.disconnect()    
+    exit(0)
+
+
 ########################
 # Main application loop
 ########################
 
 if __name__ == '__main__':
+
+    signal(SIGINT, keyboard_exit_handler)
 
     sio.connect('http://localhost:5000')
 
@@ -190,8 +195,6 @@ if __name__ == '__main__':
     preset_3_button.when_pressed = preset_select(preset_3_button, preset='2')
     preset_4_button.when_pressed = preset_select(preset_4_button, preset='3')
 
-    drive_button.when_pressed = pedal_toggle(
-        drive_button, effect_type=dict_drive)
-    delay_button.when_pressed = pedal_toggle(
-        delay_button, effect_type=dict_delay)
+    drive_button.when_pressed = pedal_toggle(drive_button, effect_type=dict_drive)
+    delay_button.when_pressed = pedal_toggle(delay_button, effect_type=dict_delay)
     mod_button.when_pressed = pedal_toggle(mod_button, effect_type=dict_mod)
