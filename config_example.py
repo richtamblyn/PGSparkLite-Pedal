@@ -32,10 +32,9 @@ display_res = '128x64'
 # Set the GPIO port assignments
 ################################
 
-preset_1_button_gpio = 17
-preset_2_button_gpio = 27
-preset_3_button_gpio = 22
-preset_4_button_gpio = 10
+up_button_gpio = 17
+down_button_gpio = 27
+select_button_gpio = 22
 
 drive_led_gpio = 14
 drive_button_gpio = 16
@@ -45,9 +44,3 @@ delay_button_gpio = 20
 
 mod_led_gpio = 15
 mod_button_gpio = 21
-
-#####################################################################
-# Time in seconds to wait before recognising a new change in a Pedal
-#####################################################################
-
-pedal_bounce_time = 2
