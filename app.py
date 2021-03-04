@@ -142,7 +142,7 @@ def pedal_status(data):
     # Listen for Pedal status updates and update OLED/LEDs as necessary
     global selected_preset
     selected_preset = int(data[dict_preset]) + 1
-    display.show_selected_preset(str(selected_preset))
+    display.show_selected_preset(selected_preset)
 
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
@@ -171,7 +171,7 @@ def update_preset_display(data):
     # Listen for change of Preset to update OLED screen
     global selected_preset
     selected_preset = int(data['value']) + 1
-    display.show_selected_preset(str(selected_preset))
+    display.show_selected_preset(selected_preset)
 
 
 ####################
