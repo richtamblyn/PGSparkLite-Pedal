@@ -149,7 +149,7 @@ def pedal_status(data):
     toggle_led(dict_mod, data[dict_mod])
 
     if debug_mode:
-        print(dict_preset + '' + data[dict_preset])
+        print(dict_preset + '' + str(data[dict_preset]))
         print(dict_delay + ' ' + data[dict_delay])
         print(dict_drive + ' ' + data[dict_drive])
         print(dict_mod + ' ' + data[dict_mod])
