@@ -9,6 +9,8 @@
 #
 ##############################################################################
 
+import os
+
 import Adafruit_SSD1306
 from PIL import Image, ImageDraw, ImageFont
 
@@ -37,9 +39,10 @@ class oled_display:
         self.image = Image.new('1', (self.width, self.height))
         self.draw = ImageDraw.Draw(self.image)
 
-        # TODO Find good OpenSource font for status and preset display
+        source_dir = os.path.dirname(os.path.realpath(__file__))
+
         self.status_font = ImageFont.load_default()
-        self.preset_font = ImageFont.load_default()
+        self.preset_font = ImageFont.truetype('{}/Market_Deco.ttf'.format(source_dir), 56)
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
