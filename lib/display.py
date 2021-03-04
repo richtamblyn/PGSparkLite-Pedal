@@ -41,8 +41,8 @@ class oled_display:
 
         source_dir = os.path.dirname(os.path.realpath(__file__))
 
-        self.status_font = ImageFont.load_default()
-        self.preset_font = ImageFont.truetype('{}/Market_Deco.ttf'.format(source_dir), 70)
+        self.status_font = ImageFont.truetype('{}/Winkle-Regular.ttf'.format(source_dir), 30)
+        self.preset_font = ImageFont.truetype('{}/Winkle-Regular.ttf'.format(source_dir), 60)
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
@@ -59,13 +59,13 @@ class oled_display:
         preset_text = ''
 
         if preset == 1:
-            preset_text = str(preset)
+            preset_text = str(preset) + '...'
         elif preset == 2:
-            preset_text = ' ' + str(preset)
+            preset_text = '.' + str(preset) + '..'
         elif preset == 3:
-            preset_text = '  ' + str(preset)
+            preset_text = '..' + str(preset) + '.'
         else:
-            preset_text = '   ' + str(preset)
+            preset_text = '...' + str(preset)
 
         self.draw.text((0, -2), preset_text, font=self.preset_font, fill=255)
         self.disp.image(self.image)
