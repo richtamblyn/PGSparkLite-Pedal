@@ -62,7 +62,7 @@ class oled_display:
         self.disp.image(self.image)
         self.disp.display()        
 
-    def center_text(self, msg, msg_font):
+    def centre_text(self, msg, msg_font):
         self.image = Image.new("RGBA", (self.width, self.height), "black")
         self.draw = ImageDraw.Draw(self.image)
         text_w, text_h = self.draw.textsize(msg, font=msg_font)
