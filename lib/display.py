@@ -12,8 +12,6 @@
 import Adafruit_SSD1306
 from PIL import Image, ImageDraw, ImageFont
 
-from lib.mock_oled import mock_oled
-
 
 class oled_display:
 
@@ -30,10 +28,8 @@ class oled_display:
             self.disp.begin()
             self.disp.clear()
             self.disp.display()
-        except:
-            # If we're debugging on different platform or without a physical screen then spin up our mock OLED class
-            self.disp = mock_oled()
-            print('ERROR: Could not connect to display. Using mock OLED instead')
+        except:            
+            print('ERROR: Could not connect to display')
 
         # Initialise the screen
         self.width = self.disp.width
@@ -52,16 +48,10 @@ class oled_display:
         self.clear_screen()
         self.draw.text((0, -2), status, font=self.status_font, fill=255)
         self.disp.image(self.image)
-        self.disp.display()
-
-        if self.disp.mock != None:
-            print(status)
+        self.disp.display()        
 
     def show_selected_preset(self, preset):
         self.clear_screen()
         self.draw.text((0, -2), preset, font=self.preset_font, fill=255)
         self.disp.image(self.image)
-        self.disp.display()
-
-        if self.disp.mock != None:
-            print(preset)
+        self.disp.display()        
