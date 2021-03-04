@@ -17,15 +17,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 class oled_display:
 
-    def __init__(self, i2c_address, display_res):
+    def __init__(self, i2c_address, display_height):
 
-        RST = None        
-
-        self.width = 128
-        self.height = display_res
+        RST = None                
 
         try:            
-            if self.height == 64:
+            if display_height == 64:
                 self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=i2c_address)
             else:                
                 self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
@@ -63,7 +60,7 @@ class oled_display:
         self.disp.display()        
 
     def centre_text(self, msg, msg_font):
-        self.image = Image.new("RGBA", (self.width, self.height), "black")
+        self.image = Image.new('1', (self.width, self.height))
         self.draw = ImageDraw.Draw(self.image)
         text_w, text_h = self.draw.textsize(msg, font=msg_font)
         return (self.width - text_w) / 2, (self.height - text_h) / 2
