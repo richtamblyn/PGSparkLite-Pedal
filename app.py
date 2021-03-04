@@ -10,7 +10,7 @@
 import socketio
 from gpiozero import LED, Button
 
-from config import (debug_mode, delay_button_gpio, delay_led_gpio, display_res,
+from config import (debug_mode, delay_button_gpio, delay_led_gpio, display_height,
                     down_button_gpio, drive_button_gpio, drive_led_gpio,
                     i2c_address, mod_button_gpio, mod_led_gpio,
                     select_button_gpio, up_button_gpio)
@@ -26,7 +26,7 @@ from lib.display import oled_display
 
 sio = socketio.Client()
 
-display = oled_display(i2c_address, display_res)
+display = oled_display(i2c_address, display_height)
 
 connected_to_server = False
 connected_to_amp = False

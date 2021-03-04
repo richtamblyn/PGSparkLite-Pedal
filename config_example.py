@@ -24,8 +24,8 @@ i2c_address = 0x3C
 # Comment/uncomment the lines below to suit your display resolution
 ####################################################################
 
-display_res = '128x64'
-# display_res = '128x32'
+display_height = 64
+# display_height = 32
 
 ################################
 # Footswitches / LEDs

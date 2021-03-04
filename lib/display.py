@@ -21,8 +21,11 @@ class oled_display:
 
         RST = None        
 
+        self.width = 128
+        self.height = display_res
+
         try:            
-            if display_res == '128x64':
+            if self.height == 64:
                 self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=i2c_address)
             else:                
                 self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
@@ -42,7 +45,7 @@ class oled_display:
         source_dir = os.path.dirname(os.path.realpath(__file__))
 
         self.status_font = ImageFont.load_default()
-        self.preset_font = ImageFont.truetype('{}/Market_Deco.ttf'.format(source_dir), 56)
+        self.preset_font = ImageFont.truetype('{}/Market_Deco.ttf'.format(source_dir), 60)
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
@@ -55,6 +58,12 @@ class oled_display:
 
     def show_selected_preset(self, preset):
         self.clear_screen()
-        self.draw.text((0, -2), preset, font=self.preset_font, fill=255)
+        self.draw.text(self.centre_text(preset, self.preset_font), preset, font=self.preset_font, fill=1)
         self.disp.image(self.image)
         self.disp.display()        
+
+    def center_text(self, msg, msg_font):
+        self.image = Image.new("RGBA", (self.width, self.height), "black")
+        self.draw = ImageDraw.Draw(self.image)
+        text_w, text_h = self.draw.textsize(msg, font=msg_font)
+        return (self.width - text_w) / 2, (self.height - text_h) / 2
