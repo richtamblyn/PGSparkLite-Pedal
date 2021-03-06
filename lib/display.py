@@ -10,6 +10,7 @@
 ##############################################################################
 
 import os
+import threading
 
 import Adafruit_SSD1306
 from PIL import Image, ImageDraw, ImageFont
@@ -51,6 +52,12 @@ class oled_display:
         self.disp.display()
 
     def display_status(self, status):
+        job = threading.Thread(target=self._display_status,
+                                 args=(status),
+                                 daemon=True)
+        job.start()  
+
+    def _display_status(self, status):
         if self.last_text == status:
              return
         else:
@@ -65,6 +72,12 @@ class oled_display:
         self.show_selected_preset(str(preset) + ' *')
 
     def show_selected_preset(self, preset):
+        job = threading.Thread(target=self._show_selected_preset,
+                                 args=(preset),
+                                 daemon=True)
+        job.start()  
+
+    def _show_selected_preset(self, preset):
         preset_string = str(preset)
 
         if self.last_text == preset_string:
