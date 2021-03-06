@@ -133,9 +133,9 @@ def select_preset(up):
         displayed_preset -= 1
 
     if displayed_preset == selected_preset:
-        display.show_selected_preset(selected_preset)
+        sio.start_background_task(display.show_selected_preset, selected_preset)
     else:
-        display.show_unselected_preset(displayed_preset)
+        sio.start_background_task(display.show_unselected_preset, displayed_preset)
 
 
 def select():
@@ -164,12 +164,12 @@ def connect():
 
 @sio.event
 def connect_error():
-    display.display_status(msg_no_connection)
+    sio.start_background_task(display.display_status, msg_no_connection)
 
 
 @sio.event
 def disconnect():
-    display.display_status(msg_disconnected)
+    sio.start_background_task(display.display_status, msg_disconnected)
 
 
 #############
@@ -183,7 +183,7 @@ def connection_lost(data):
 
     connection_attempts = 1
 
-    display.display_status(msg_is_amp_on + str(connection_attempts))
+    sio.start_background_task(display.display_status, msg_is_amp_on + str(connection_attempts))
 
     connected_to_amp = False
 
@@ -205,7 +205,7 @@ def connection_message(data):
 
     elif data[dict_message] == dict_connection_failed:
         connection_attempts +=1
-        display.display_status(msg_is_amp_on + str(connection_attempts))
+        sio.start_background_task(display.display_status, msg_is_amp_on + str(connection_attempts))
         do_connect()    
 
 
@@ -217,7 +217,7 @@ def pedal_status(data):
 
     selected_preset = int(data[dict_preset]) + 1
     displayed_preset = selected_preset
-    display.show_selected_preset(selected_preset)
+    sio.start_background_task(display.show_selected_preset, selected_preset)
 
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
@@ -237,20 +237,20 @@ def update_preset_display(data):
     # Listen for change of Preset to update OLED screen
     global selected_preset
     selected_preset = int(data[dict_value]) + 1
-    display.show_selected_preset(selected_preset)
+    sio.start_background_task(display.show_selected_preset, selected_preset)
 
 
 if __name__ == '__main__':
     signal(SIGINT, keyboard_exit_handler)
 
-    display.display_status(msg_booting)
+    sio.start_background_task(display.display_status, msg_booting)
     while not connected_to_server:
         try:
             sio.connect(socketio_url)
         except:            
             time.sleep(2)
 
-    display.display_status(msg_pgsparklite_ok)
+    sio.start_background_task(display.display_status, msg_pgsparklite_ok)
 
     # Connect the server to the amp
     do_connect()
