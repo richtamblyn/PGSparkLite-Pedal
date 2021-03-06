@@ -6,11 +6,13 @@
 # changes when updating the Pedal code.
 ###########################################################################
 
-##################################
-# Enable debug logging to console
-##################################
+###########################################################################
+# SocketIO URL
+# Only change this line if you're hosting the PGSparkLite server somewhere
+# other than the same Raspberry Pi Zero W as this code
+###########################################################################
 
-debug_mode = False
+socketio_url = 'http://localhost:5000'
 
 ############################################################################
 # OLED Display Address
