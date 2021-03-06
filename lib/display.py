@@ -19,18 +19,22 @@ class oled_display:
 
     def __init__(self, i2c_address, display_height):
 
-        RST = None        
+        RST = None
 
-        try:            
+        try:
             if display_height == 64:
-                self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=i2c_address)
-            else:                
-                self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
+                self.disp = Adafruit_SSD1306.SSD1306_128_64(
+                    rst=RST, i2c_address=i2c_address)
+            else:
+                self.disp = Adafruit_SSD1306.SSD1306_128_32(
+                    rst=RST)  # 128 x 32
 
             self.disp.begin()
             self.disp.clear()
             self.disp.display()
-        except:            
+
+            self.last_text = ''
+        except:
             print('ERROR: Could not connect to display')
 
         # Initialise the screen
@@ -41,32 +45,33 @@ class oled_display:
 
         source_dir = os.path.dirname(os.path.realpath(__file__))
 
-        self.status_font = ImageFont.truetype('{}/Winkle-Regular.ttf'.format(source_dir), 30)
-        self.preset_font = ImageFont.truetype('{}/Winkle-Regular.ttf'.format(source_dir), 60)
+        self.status_font = ImageFont.truetype(
+            '{}/Winkle-Regular.ttf'.format(source_dir), 20)
+        self.preset_font = ImageFont.truetype(
+            '{}/Winkle-Regular.ttf'.format(source_dir), 100)
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
+        self.disp.display()
 
     def display_status(self, status):
         self.clear_screen()
         self.draw.text((0, -2), status, font=self.status_font, fill=255)
         self.disp.image(self.image)
-        self.disp.display()        
+        self.disp.display()
+
+    def show_unselected_preset(self, preset):
+        self.show_selected_preset(str(preset))
 
     def show_selected_preset(self, preset):
-        self.clear_screen()
+        preset_string = str(preset)
 
-        preset_text = ''
-
-        if preset == 1:
-            preset_text = str(preset) + '...'
-        elif preset == 2:
-            preset_text = '.' + str(preset) + '..'
-        elif preset == 3:
-            preset_text = '..' + str(preset) + '.'
+        if self.last_text == preset_string:
+            return
         else:
-            preset_text = '...' + str(preset)
+            self.last_text = preset_string
 
-        self.draw.text((0, -2), preset_text, font=self.preset_font, fill=255)
+        self.clear_screen()
+        self.draw.text((0, -2), preset_string, font=self.preset_font, fill=255)
         self.disp.image(self.image)
-        self.disp.display()        
+        self.disp.display()

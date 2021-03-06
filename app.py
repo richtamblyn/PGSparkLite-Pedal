@@ -77,7 +77,7 @@ def up():
     else:
         displayed_preset += 1
 
-    print('Preset ' + str(displayed_preset))
+    display.show_unselected_preset(displayed_preset)
 
 
 def down():
@@ -87,19 +87,19 @@ def down():
     else:
         displayed_preset -= 1
 
-    print('Preset ' + str(displayed_preset))
+    display.show_unselected_preset(displayed_preset)
 
 
 def select():
     global displayed_preset
-    preset_select(displayed_preset)
+    preset_select(displayed_preset-1)
 
 
 def preset_select(preset):
     sio.emit(dict_change_preset, {dict_preset: str(preset)})
 
     if debug_mode:
-        print('Preset ' + preset + ' pressed.')
+        print('Preset ' + str(preset) + ' pressed.')
 
 
 ###########################
@@ -110,17 +110,19 @@ def preset_select(preset):
 def connect():
     global connected_to_server
     connected_to_server = True
-    display.display_status("Connected to PGSparkLite service...")
+
+    if debug_mode:
+        print("Connected")
 
 
 @sio.event
 def connect_error():
-    display.display_status("The connection failed!")
+    display.display_status("No connection")
 
 
 @sio.event
 def disconnect():
-    display.display_status("Disconnected.")
+    display.display_status("Disconnected")
 
 
 #############
@@ -132,16 +134,21 @@ def connection_message(data):
     # Listen for connection status messages
     global connected_to_amp
 
-    display.display_status(data[dict_message])
     if data[dict_message] == dict_connection_success:
         connected_to_amp = True
+
+    if debug_mode:
+        print(data[dict_message])
 
 
 @sio.on('pedal-status')
 def pedal_status(data):
     # Listen for Pedal status updates and update OLED/LEDs as necessary
     global selected_preset
+    global displayed_preset
+
     selected_preset = int(data[dict_preset]) + 1
+    displayed_preset = selected_preset
     display.show_selected_preset(selected_preset)
 
     toggle_led(dict_drive, data[dict_drive])
@@ -149,6 +156,7 @@ def pedal_status(data):
     toggle_led(dict_mod, data[dict_mod])
 
     if debug_mode:
+
         print(dict_preset + '' + str(data[dict_preset]))
         print(dict_delay + ' ' + data[dict_delay])
         print(dict_drive + ' ' + data[dict_drive])
@@ -181,19 +189,19 @@ def update_preset_display(data):
 def toggle_led(effect_type, state):
     if effect_type == dict_drive:
         if state == dict_On:
-            drive_led.on
+            drive_led.on()
         elif state == dict_Off:
-            drive_led.off
+            drive_led.off()
     elif effect_type == dict_delay:
         if state == dict_On:
-            delay_led.on
+            delay_led.on()
         elif state == dict_Off:
-            delay_led.off
+            delay_led.off()
     elif effect_type == dict_mod:
         if state == dict_On:
-            mod_led.on
+            mod_led.on()
         elif state == dict_Off:
-            mod_led.off
+            mod_led.off()
     else:
         if debug_mode:
             print('Effect_type not currently supported')

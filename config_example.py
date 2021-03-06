@@ -32,15 +32,15 @@ display_height = 64
 # Set the GPIO port assignments
 ################################
 
-up_button_gpio = 17
-down_button_gpio = 27
-select_button_gpio = 22
+up_button_gpio = 16
+down_button_gpio = 20
+select_button_gpio = 21
 
-drive_led_gpio = 14
-drive_button_gpio = 16
+drive_led_gpio = 26
+drive_button_gpio = 5
 
-delay_led_gpio = 4
-delay_button_gpio = 20
+delay_led_gpio = 12
+delay_button_gpio = 6
 
-mod_led_gpio = 15
-mod_button_gpio = 21
+mod_led_gpio = 19
+mod_button_gpio = 13
