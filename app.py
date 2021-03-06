@@ -140,6 +140,11 @@ def select_preset(up):
 
 def select():
     global displayed_preset
+    global selected_preset
+
+    if displayed_preset == selected_preset:
+        return
+
     preset_select(displayed_preset-1)
 
 
