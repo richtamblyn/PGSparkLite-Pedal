@@ -50,7 +50,7 @@ class oled_display:
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
         self.disp.display()
 
-    async def display_status(self, status):
+    def display_status(self, status):
         if self.last_text == status:
              return
         else:
@@ -61,10 +61,10 @@ class oled_display:
         self.disp.image(self.image)
         self.disp.display()
 
-    async def show_unselected_preset(self, preset):
+    def show_unselected_preset(self, preset):
         self.show_selected_preset(str(preset) + ' *')
 
-    async def show_selected_preset(self, preset):
+    def show_selected_preset(self, preset):
         preset_string = str(preset)
 
         if self.last_text == preset_string:
