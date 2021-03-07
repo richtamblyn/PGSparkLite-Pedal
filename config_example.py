@@ -38,7 +38,9 @@ display_height = 64
 # Put a custom TTF font into /lib/fonts and update the line below
 ###################################################################
 
-font = 'Erika-Type.ttf'
+font = 'Nouveau_IBM.ttf'
+status_size = 20
+preset_size = 100
 
 ################################
 # Footswitches / LEDs

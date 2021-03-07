@@ -14,9 +14,10 @@ import socketio
 from gpiozero import LED, Button
 
 from config import (delay_button_gpio, delay_led_gpio, display_height,
-                    down_button_gpio, drive_button_gpio, drive_led_gpio,
-                    i2c_address, mod_button_gpio, mod_led_gpio,
-                    select_button_gpio, socketio_url, up_button_gpio, font)
+                    down_button_gpio, drive_button_gpio, drive_led_gpio, font,
+                    i2c_address, mod_button_gpio, mod_led_gpio, preset_size,
+                    select_button_gpio, socketio_url, status_size,
+                    up_button_gpio)
 from lib.common import (dict_change_preset, dict_connection_failed,
                         dict_connection_lost, dict_connection_message,
                         dict_connection_success, dict_delay, dict_drive,
@@ -35,7 +36,7 @@ from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
 
 sio = socketio.Client()
 
-display = oled_display(i2c_address, display_height, font)
+display = oled_display(i2c_address, display_height, font, status_size, preset_size)
 
 connected_to_server = False
 connected_to_amp = False

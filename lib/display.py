@@ -17,7 +17,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 class oled_display:
 
-    def __init__(self, i2c_address, display_height, font):
+    def __init__(self, i2c_address, display_height, font, status_size, preset_size):
 
         RST = None
 
@@ -47,14 +47,12 @@ class oled_display:
 
         font_path = source_dir + '/fonts/' + font
 
-        self.status_font = ImageFont.truetype(font_path, 20)
-        self.preset_font = ImageFont.truetype(font_path, 100)
-
+        self.status_font = ImageFont.truetype(font_path, status_size)
+        self.preset_font = ImageFont.truetype(font_path, preset_size)
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
         self.disp.display()
-
 
     def display_status(self, status):
         if self.last_text == status:
@@ -66,7 +64,6 @@ class oled_display:
         self.draw.text((0, -2), status, font=self.status_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
-    
 
     def show_selected_preset(self, preset):
         preset_string = str(preset)
@@ -81,6 +78,5 @@ class oled_display:
         self.disp.image(self.image)
         self.disp.display()
 
-    
     def show_unselected_preset(self, preset):
         self.show_selected_preset(str(preset) + ' *')
