@@ -74,9 +74,9 @@ class oled_display:
             self.last_text = preset_string
 
         self.clear_screen()
-        self.draw.text((0, -2), preset_string, font=self.preset_font, fill=255)
+        self.draw.text((0, -12), preset_string, font=self.preset_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
 
     def show_unselected_preset(self, preset):
-        self.show_selected_preset(str(preset) + ' *')
+        self.show_selected_preset(str(preset) + '*')
