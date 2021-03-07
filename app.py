@@ -7,6 +7,7 @@
 ##############################################################
 
 
+import os
 import time
 from signal import SIGINT, signal
 
@@ -28,7 +29,8 @@ from lib.common import (dict_change_preset, dict_connection_failed,
                         dict_update_preset, dict_value)
 from lib.display import oled_display
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
-                          msg_no_connection, msg_pgsparklite_ok)
+                          msg_no_connection, msg_pgsparklite_ok,
+                          msg_shutting_down)
 
 ########
 # Setup
@@ -55,7 +57,7 @@ delay_led = LED(pin=delay_led_gpio)
 delay_button = Button(pin=delay_button_gpio)
 
 mod_led = LED(pin=mod_led_gpio)
-mod_button = Button(pin=mod_button_gpio)
+mod_button = Button(pin=mod_button_gpio, hold_time=5)
 
 
 ####################
@@ -154,6 +156,11 @@ def select_preset(up):
         display.show_selected_preset(selected_preset)
     else:
         display.show_unselected_preset(displayed_preset)
+
+
+def shutdown():
+    display.display_status(msg_shutting_down)
+    os.system('sudo shutdown -h now')
 
 
 def up():
@@ -274,6 +281,7 @@ if __name__ == '__main__':
     drive_button.when_pressed = drive
     delay_button.when_pressed = delay
     mod_button.when_pressed = mod
+    mod_button.when_held = shutdown
 
     sio.wait()
 
