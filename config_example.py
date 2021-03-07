@@ -58,5 +58,5 @@ drive_button_gpio = 5
 delay_led_gpio = 12
 delay_button_gpio = 6
 
-mod_led_gpio = 19
+mod_led_gpio = 14 # We use this LED as a Power indicator until the code starts up.
 mod_button_gpio = 13
