@@ -2,7 +2,7 @@
 
 This project extends the functionality of the PGSparkLite web interface (https://github.com/richtamblyn/PGSparkLite) to support physical footswitches, On/Off status LEDs and an OLED display.
 
-![PGSparkLite_Pedal_Comms](https://richtamblyn.co.uk/wp-content/uploads/2021/03/Pedal_Architecture.jpg)
+![PGSparkLite Pedal Prototype](https://richtamblyn.co.uk/wp-content/uploads/2021/03/IMG-5008-scaled.jpg)
 
 ## Features
 
@@ -12,4 +12,8 @@ This project extends the functionality of the PGSparkLite web interface (https:/
 - Dedicated Modulation Pedal On/Off footswitch and LED indicator
 - OLED Display - Shows status messages and selected Amp Preset
 
-# More information coming soon...
+## Architecture
+
+![PGSparkLite_Pedal_Comms](https://richtamblyn.co.uk/wp-content/uploads/2021/03/Pedal_Architecture.jpg)
+
+
