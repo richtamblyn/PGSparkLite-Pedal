@@ -62,6 +62,12 @@ mod_button = Button(pin=mod_button_gpio)
 # Utility Functions
 ####################
 
+def clean_exit():
+    drive_led.on()
+    delay_led.on()
+    mod_led.on()
+    display.clear_screen()
+
 def do_connect():
     sio.emit(dict_pedal_connect, {})
 
@@ -69,6 +75,7 @@ def do_connect():
 def keyboard_exit_handler(signal_received, frame):
     sio.disconnect()
     sio.wait()    
+    clean_exit()
 
 
 def toggle_led(effect_type, state):
@@ -267,3 +274,7 @@ if __name__ == '__main__':
     drive_button.when_pressed = drive
     delay_button.when_pressed = delay
     mod_button.when_pressed = mod
+
+    sio.wait()
+
+    clean_exit()
