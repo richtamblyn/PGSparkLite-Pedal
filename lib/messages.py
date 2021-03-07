@@ -1,4 +1,4 @@
-msg_is_amp_on = 'Is Amp on? \r\nAttempt '
+msg_is_amp_on = 'Is Amp on? \r\nAttempt: '
 msg_no_connection = 'No connection'
 msg_disconnected = 'Disconnected'
 msg_booting = 'Booting...'

@@ -16,7 +16,7 @@ from gpiozero import LED, Button
 from config import (delay_button_gpio, delay_led_gpio, display_height,
                     down_button_gpio, drive_button_gpio, drive_led_gpio,
                     i2c_address, mod_button_gpio, mod_led_gpio,
-                    select_button_gpio, socketio_url, up_button_gpio)
+                    select_button_gpio, socketio_url, up_button_gpio, font)
 from lib.common import (dict_change_preset, dict_connection_failed,
                         dict_connection_lost, dict_connection_message,
                         dict_connection_success, dict_delay, dict_drive,
@@ -35,7 +35,7 @@ from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
 
 sio = socketio.Client()
 
-display = oled_display(i2c_address, display_height)
+display = oled_display(i2c_address, display_height, font)
 
 connected_to_server = False
 connected_to_amp = False
@@ -95,6 +95,14 @@ def toggle_led(effect_type, state):
 # Switch Functions
 ###################
 
+def delay():
+    pedal_toggle(dict_delay)
+
+
+def down():
+    select_preset(False)
+
+
 def drive():
     pedal_toggle(dict_drive)
 
@@ -103,20 +111,22 @@ def mod():
     pedal_toggle(dict_mod)
 
 
-def delay():
-    pedal_toggle(dict_delay)
-
-
 def pedal_toggle(effect_type):
     sio.emit(dict_toggle_effect_onoff, {dict_effect_type: effect_type})
 
 
-def up():
-    select_preset(True)
+def preset_select(preset):
+    sio.emit(dict_change_preset, {dict_preset: str(preset)})
 
 
-def down():
-    select_preset(False)
+def select():
+    global displayed_preset
+    global selected_preset
+
+    if displayed_preset == selected_preset:
+        return
+
+    preset_select(displayed_preset-1)
 
 
 def select_preset(up):
@@ -138,18 +148,8 @@ def select_preset(up):
         display.show_unselected_preset(displayed_preset)
 
 
-def select():
-    global displayed_preset
-    global selected_preset
-
-    if displayed_preset == selected_preset:
-        return
-
-    preset_select(displayed_preset-1)
-
-
-def preset_select(preset):
-    sio.emit(dict_change_preset, {dict_preset: str(preset)})
+def up():
+    select_preset(True)
 
 
 ###########################

@@ -8,6 +8,7 @@
 
 ###########################################################################
 # SocketIO URL
+# ------------
 # Only change this line if you're hosting the PGSparkLite server somewhere
 # other than the same Raspberry Pi Zero W as this code
 ###########################################################################
@@ -16,6 +17,7 @@ socketio_url = 'http://localhost:5000'
 
 ############################################################################
 # OLED Display Address
+# --------------------
 # Change the line below to match the result of 'i2cdetect -y 1' (if not 3c)
 ############################################################################
 
@@ -23,14 +25,24 @@ i2c_address = 0x3C
 
 ####################################################################
 # OLED Display Resolution
+# -----------------------
 # Comment/uncomment the lines below to suit your display resolution
 ####################################################################
 
 display_height = 64
 # display_height = 32
 
+###################################################################
+# OLED TrueType Font
+# ------------------
+# Put a custom TTF font into /lib/fonts and update the line below
+###################################################################
+
+font = 'Erika-Type.ttf'
+
 ################################
 # Footswitches / LEDs
+# -------------------
 # Set the GPIO port assignments
 ################################
 

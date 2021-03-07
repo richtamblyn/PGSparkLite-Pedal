@@ -17,15 +17,17 @@ from PIL import Image, ImageDraw, ImageFont
 
 class oled_display:
 
-    def __init__(self, i2c_address, display_height):
+    def __init__(self, i2c_address, display_height, font):
 
         RST = None
 
         try:
             if display_height == 64:
-                self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=i2c_address)
+                self.disp = Adafruit_SSD1306.SSD1306_128_64(
+                    rst=RST, i2c_address=i2c_address)
             else:
-                self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST) # 128 x 32
+                self.disp = Adafruit_SSD1306.SSD1306_128_32(
+                    rst=RST)  # 128 x 32
 
             self.disp.begin()
             self.disp.clear()
@@ -43,16 +45,20 @@ class oled_display:
 
         source_dir = os.path.dirname(os.path.realpath(__file__))
 
-        self.status_font = ImageFont.truetype('{}/Winkle-Regular.ttf'.format(source_dir), 20)
-        self.preset_font = ImageFont.truetype('{}/Winkle-Regular.ttf'.format(source_dir), 100)
+        font_path = '{}/fonts/' + font.format(source_dir)
+
+        self.status_font = ImageFont.truetype(font_path, 20)
+        self.preset_font = ImageFont.truetype(font_path, 100)
+
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
         self.disp.display()
 
+
     def display_status(self, status):
         if self.last_text == status:
-             return
+            return
         else:
             self.last_text = status
 
@@ -60,9 +66,7 @@ class oled_display:
         self.draw.text((0, -2), status, font=self.status_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
-
-    def show_unselected_preset(self, preset):
-        self.show_selected_preset(str(preset) + ' *')
+    
 
     def show_selected_preset(self, preset):
         preset_string = str(preset)
@@ -70,9 +74,13 @@ class oled_display:
         if self.last_text == preset_string:
             return
         else:
-           self.last_text = preset_string
+            self.last_text = preset_string
 
         self.clear_screen()
         self.draw.text((0, -2), preset_string, font=self.preset_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
+
+    
+    def show_unselected_preset(self, preset):
+        self.show_selected_preset(str(preset) + ' *')
