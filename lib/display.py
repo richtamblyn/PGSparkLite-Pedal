@@ -45,7 +45,7 @@ class oled_display:
 
         source_dir = os.path.dirname(os.path.realpath(__file__))
 
-        font_path = '{}/fonts/' + font.format(source_dir)
+        font_path = source_dir + '/fonts/' + font
 
         self.status_font = ImageFont.truetype(font_path, 20)
         self.preset_font = ImageFont.truetype(font_path, 100)
