@@ -1,0 +1,11 @@
+[Unit]
+Description=Starts PGSParkLite Pedal Software
+
+[Service]
+ExecStart=/home/pi/PGSparkLite-Pedal/pgsparklite-pedal.sh
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=PGSparkLite-Pedal
+
+[Install]
+WantedBy=basic.target
