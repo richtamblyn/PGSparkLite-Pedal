@@ -265,8 +265,7 @@ if __name__ == '__main__':
         except:            
             time.sleep(2)
 
-    display.display_status(msg_pgsparklite_ok)
-    time.sleep(2)
+    display.display_status(msg_pgsparklite_ok)    
 
     # Connect the server to the amp
     do_connect()
