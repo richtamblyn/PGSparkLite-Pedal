@@ -3,3 +3,8 @@ lib/__pycache__/common.cpython-39.pyc
 lib/__pycache__/display.cpython-39.pyc
 lib/__pycache__/mock_oled.cpython-39.pyc
 config.py
+__pycache__/config.cpython-37.pyc
+lib/__pycache__/__init__.cpython-37.pyc
+lib/__pycache__/common.cpython-37.pyc
+lib/__pycache__/display.cpython-37.pyc
+lib/__pycache__/messages.cpython-37.pyc
