@@ -80,11 +80,7 @@ def keyboard_exit_handler(signal_received, frame):
     clean_exit()
 
 
-def toggle_led(data):
-    # Listen for changes in On/Off state to update LEDs
-    state = data[dict_state]
-    effect_type = data[dict_effect_type]
-    
+def toggle_led(effect_type, state):    
     if effect_type == dict_drive:
         if state == dict_On:
             drive_led.on()
@@ -244,13 +240,15 @@ def pedal_status(data):
 
 
 @sio.on(dict_refresh_onoff)
-def refresh_onoff(data):    
-    toggle_led(data)    
+def refresh_onoff(data):
+    # Listen for changes in On/Off state to update LEDs    
+    toggle_led(data[dict_effect_type], data[dict_state])    
 
 
 @sio.on(dict_update_onoff)
 def update_onoff(data):
-    toggle_led(data)
+    # Listen for Delay / Mod knob changes on the Amp
+    toggle_led(data[dict_effect_type], data[dict_state])
 
 
 @sio.on(dict_update_preset)
