@@ -26,7 +26,7 @@ from lib.common import (dict_change_preset, dict_connection_failed,
                         dict_On, dict_pedal_config_request, dict_pedal_connect,
                         dict_pedal_status, dict_preset, dict_refresh_onoff,
                         dict_state, dict_toggle_effect_onoff,
-                        dict_update_preset, dict_value)
+                        dict_update_preset, dict_value, dict_update_onoff)
 from lib.display import oled_display
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_no_connection, msg_pgsparklite_ok,
@@ -80,7 +80,7 @@ def keyboard_exit_handler(signal_received, frame):
     clean_exit()
 
 
-def toggle_led(effect_type, state):
+def toggle_led(effect_type, state):    
     if effect_type == dict_drive:
         if state == dict_On:
             drive_led.on()
@@ -241,10 +241,14 @@ def pedal_status(data):
 
 @sio.on(dict_refresh_onoff)
 def refresh_onoff(data):
-    # Listen for changes in On/Off state to update LEDs
-    state = data[dict_state]
-    effect_type = data[dict_effect_type]
-    toggle_led(effect_type, state)    
+    # Listen for changes in On/Off state to update LEDs    
+    toggle_led(data[dict_effect_type], data[dict_state])    
+
+
+@sio.on(dict_update_onoff)
+def update_onoff(data):
+    # Listen for Delay / Mod knob changes on the Amp
+    toggle_led(data[dict_effect_type], data[dict_state])
 
 
 @sio.on(dict_update_preset)
