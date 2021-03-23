@@ -14,23 +14,22 @@ from signal import SIGINT, signal
 import socketio
 from gpiozero import LED, Button
 
-from config import (delay_button_gpio, delay_led_gpio, display_height,
-                    down_button_gpio, drive_button_gpio, drive_led_gpio, font,
-                    i2c_address, mod_button_gpio, mod_led_gpio, preset_size,
-                    select_button_gpio, socketio_url, status_size,
-                    up_button_gpio)
-from lib.common import (dict_change_preset, dict_connection_failed,
-                        dict_connection_lost, dict_connection_message,
-                        dict_connection_success, dict_delay, dict_drive,
-                        dict_effect_type, dict_message, dict_mod, dict_Off,
-                        dict_On, dict_pedal_config_request, dict_pedal_connect,
-                        dict_pedal_status, dict_preset, dict_refresh_onoff,
-                        dict_state, dict_toggle_effect_onoff,
-                        dict_update_preset, dict_value, dict_update_onoff)
-from lib.display import oled_display
+import config
+from lib.common import (dict_amp_preset, dict_change_preset,
+                        dict_connection_failed, dict_connection_lost,
+                        dict_connection_message, dict_connection_success,
+                        dict_delay, dict_drive, dict_effect_type, dict_message,
+                        dict_mod, dict_Off, dict_On, dict_pedal_config_request,
+                        dict_pedal_connect, dict_pedal_status, dict_preset,
+                        dict_refresh_onoff, dict_reverb, dict_state,
+                        dict_toggle_effect_onoff, dict_update_onoff,
+                        dict_update_preset, dict_user_preset, dict_value)
+from lib.display.hd44780 import HD44780_Display
+from lib.display.ssd1306 import SSD1306_Display
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_no_connection, msg_pgsparklite_ok,
                           msg_shutting_down)
+from lib.pedal_state import PedalState
 
 ########
 # Setup
@@ -38,26 +37,44 @@ from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
 
 sio = socketio.Client()
 
-display = oled_display(i2c_address, display_height, font, status_size, preset_size)
+state = PedalState()
 
-connected_to_server = False
-connected_to_amp = False
-displayed_preset = 1
-selected_preset = 0
-connection_attempts = 0
+up_button = Button(pin=config.up_button_gpio, hold_time=2)
+down_button = Button(pin=config.down_button_gpio)
+select_button = Button(pin=config.select_button_gpio)
 
-up_button = Button(pin=up_button_gpio)
-down_button = Button(pin=down_button_gpio)
-select_button = Button(pin=select_button_gpio)
+drive_led = LED(pin=config.drive_led_gpio)
+drive_button = Button(pin=config.drive_button_gpio)
 
-drive_led = LED(pin=drive_led_gpio)
-drive_button = Button(pin=drive_button_gpio)
+delay_led = LED(pin=config.delay_led_gpio)
+delay_button = Button(pin=config.delay_button_gpio)
 
-delay_led = LED(pin=delay_led_gpio)
-delay_button = Button(pin=delay_button_gpio)
+mod_led = LED(pin=config.mod_led_gpio)
+mod_button = Button(pin=config.mod_button_gpio, hold_time=5)
 
-mod_led = LED(pin=mod_led_gpio)
-mod_button = Button(pin=mod_button_gpio, hold_time=5)
+# Test for optional reverb switch and LED
+try:
+    reverb_led = LED(pin=config.reverb_led_gpio)
+    reverb_button = Button(pin=config.reverb_button_gpio)
+except:
+    reverb_led = None
+    reverb_button = None
+
+#####################
+# Initialise Display
+#####################
+
+try:
+    if config.model == 'SSD1306':
+        display = SSD1306_Display(config.i2c_address, config.display_height,
+                                  config.font, config.status_size, config.preset_size)
+    elif config.model == 'HD44780':
+        display = HD44780_Display(
+            config.i2c_address, config.display_height, config.display_width)
+except:
+    # Default to v1 OLED display
+    display = SSD1306_Display(config.i2c_address, config.display_height,
+                              config.font, config.status_size, config.preset_size)
 
 
 ####################
@@ -70,17 +87,18 @@ def clean_exit():
     mod_led.on()
     display.clear_screen()
 
+
 def do_connect():
     sio.emit(dict_pedal_connect, {})
 
 
 def keyboard_exit_handler(signal_received, frame):
     sio.disconnect()
-    sio.wait()    
+    sio.wait()
     clean_exit()
 
 
-def toggle_led(effect_type, state):    
+def toggle_led(effect_type, state):
     if effect_type == dict_drive:
         if state == dict_On:
             drive_led.on()
@@ -96,9 +114,14 @@ def toggle_led(effect_type, state):
             mod_led.on()
         elif state == dict_Off:
             mod_led.off()
+    elif effect_type == dict_reverb and reverb_led != None:
+        if state == dict_On:
+            reverb_led.on()
+        elif state == dict_Off:
+            reverb_led.off()
     else:
         # Effect_type not currently supported
-        pass        
+        pass
 
 
 ###################
@@ -126,36 +149,59 @@ def pedal_toggle(effect_type):
 
 
 def preset_select(preset):
-    sio.emit(dict_change_preset, {dict_preset: str(preset)})
+    global state
+
+    if state.preset_mode == dict_amp_preset:
+        sio.emit(dict_change_preset, {dict_preset: str(preset)})
+
+
+def reverb():
+    pedal_toggle(dict_reverb)
 
 
 def select():
-    global displayed_preset
-    global selected_preset
+    global state
 
-    if displayed_preset == selected_preset:
+    if state.displayed_preset == state.selected_preset:
         return
 
-    preset_select(displayed_preset-1)
+    preset_select(state.displayed_preset-1)
 
 
 def select_preset(up):
-    global displayed_preset
-    global selected_preset
+    global state
 
-    if displayed_preset == 4 and up == True:
-        displayed_preset = 1
-    elif displayed_preset == 1 and up == False:
-        displayed_preset = 4
-    elif up == True:
-        displayed_preset += 1
-    else:
-        displayed_preset -= 1
+    if state.preset_mode == dict_amp_preset:
+        if state.displayed_preset == 4 and up == True:
+            state.displayed_preset = 1
+        elif state.displayed_preset == 1 and up == False:
+            state.displayed_preset = 4
+        elif up == True:
+            state.displayed_preset += 1
+        else:
+            state.displayed_preset -= 1
 
-    if displayed_preset == selected_preset:
-        display.show_selected_preset(selected_preset)
+        if state.displayed_preset == state.selected_preset:
+            display.show_selected_preset(
+                dict_amp_preset + str(state.selected_preset))
+        else:
+            display.show_unselected_preset(
+                dict_amp_preset + str(state.displayed_preset))
     else:
-        display.show_unselected_preset(displayed_preset)
+        # TODO: Page through the Chain Preset list we have cached
+        pass
+
+
+def change_preset_type():
+    global state
+
+    if state.preset_mode == dict_amp_preset:
+        state.preset_mode == dict_user_preset
+        # TODO: Grab the chain preset list
+    else:
+        state.preset_mode == dict_amp_preset
+        display.show_unselected_preset(
+            dict_amp_preset + str(state.displayed_preset))
 
 
 def shutdown():
@@ -173,8 +219,8 @@ def up():
 
 @sio.event
 def connect():
-    global connected_to_server
-    connected_to_server = True
+    global state
+    state.connected_to_server = True
 
 
 @sio.event
@@ -193,14 +239,13 @@ def disconnect():
 
 @sio.on(dict_connection_lost)
 def connection_lost(data):
-    global connection_attempts
-    global connected_to_amp
+    global state
 
-    connection_attempts = 1
+    state.connection_attempts = 1
 
-    display.display_status(msg_is_amp_on + str(connection_attempts))
+    display.display_status(msg_is_amp_on + str(state.connection_attempts))
 
-    connected_to_amp = False
+    state.connected_to_amp = False
 
     do_connect()
 
@@ -208,83 +253,93 @@ def connection_lost(data):
 @sio.on(dict_connection_message)
 def connection_message(data):
     # Listen for connection status messages
-    global connected_to_amp
-    global connection_attempts
+    global state
 
     if data[dict_message] == dict_connection_success:
-        connected_to_amp = True
+        state.connected_to_amp = True
 
-        if connection_attempts > 0:
-            sio.emit(dict_pedal_config_request,{})
-            connection_attempts = 0
+        if state.connection_attempts > 0:
+            sio.emit(dict_pedal_config_request, {})
+            state.connection_attempts = 0
 
     elif data[dict_message] == dict_connection_failed:
-        connection_attempts +=1
-        display.display_status(msg_is_amp_on + str(connection_attempts))
-        do_connect()    
+        state.connection_attempts += 1
+        display.display_status(msg_is_amp_on + str(state.connection_attempts))
+        do_connect()
 
 
 @sio.on(dict_pedal_status)
 def pedal_status(data):
     # Listen for Pedal status updates and update OLED/LEDs as necessary
-    global selected_preset
-    global displayed_preset
+    global state
 
-    selected_preset = int(data[dict_preset]) + 1
-    displayed_preset = selected_preset    
+    state.selected_preset = int(data[dict_preset]) + 1
+    state.displayed_preset = state.selected_preset
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
-    toggle_led(dict_mod, data[dict_mod])    
+    toggle_led(dict_mod, data[dict_mod])
 
-    display.show_selected_preset(selected_preset)
+    display.show_selected_preset(state.get_selected_preset())
 
 
 @sio.on(dict_refresh_onoff)
 def refresh_onoff(data):
-    # Listen for changes in On/Off state to update LEDs    
-    toggle_led(data[dict_effect_type], data[dict_state])    
+    # Listen for changes in On/Off state to update LEDs
+    toggle_led(data[dict_effect_type], data[dict_state])
 
 
 @sio.on(dict_update_onoff)
 def update_onoff(data):
-    # Listen for Delay / Mod knob changes on the Amp
+    # Listen for Delay / Mod / Reverb knob changes on the Amp
     toggle_led(data[dict_effect_type], data[dict_state])
 
 
 @sio.on(dict_update_preset)
 def update_preset_display(data):
     # Listen for change of Preset to update OLED screen
-    global selected_preset
-    selected_preset = int(data[dict_value]) + 1
-    display.show_selected_preset(selected_preset)
+    global state
+
+    # Reset mode to Amp preset
+    state.preset_mode = dict_amp_preset
+    state.selected_preset = int(data[dict_value]) + 1
+    display.show_selected_preset(state.selected_preset)
 
 
 if __name__ == '__main__':
     signal(SIGINT, keyboard_exit_handler)
 
     display.display_status(msg_booting)
-    while not connected_to_server:
+    while not state.connected_to_server:
         try:
-            sio.connect(socketio_url)
-        except:            
+            sio.connect(config.socketio_url)
+        except:
             time.sleep(2)
 
-    display.display_status(msg_pgsparklite_ok)    
+    display.display_status(msg_pgsparklite_ok)
 
     # Connect the server to the amp
     do_connect()
 
-    while not connected_to_amp:
+    while not state.connected_to_amp:
         pass
 
     # Set up the footswitch functions
     up_button.when_pressed = up
+    up_button.when_held = change_preset_type
+
     down_button.when_pressed = down
+
     select_button.when_pressed = select
+
     drive_button.when_pressed = drive
+
     delay_button.when_pressed = delay
+
     mod_button.when_pressed = mod
     mod_button.when_held = shutdown
+
+    if reverb_button != None:
+        reverb_button.when_pressed = reverb
 
     sio.wait()
 

@@ -8,3 +8,7 @@ lib/__pycache__/__init__.cpython-37.pyc
 lib/__pycache__/common.cpython-37.pyc
 lib/__pycache__/display.cpython-37.pyc
 lib/__pycache__/messages.cpython-37.pyc
+lib/__pycache__/pedal_state.cpython-37.pyc
+lib/display/__pycache__/__init__.cpython-37.pyc
+lib/display/__pycache__/hd44780.cpython-37.pyc
+lib/display/__pycache__/ssd1306.cpython-37.pyc

@@ -1,13 +1,6 @@
-##############################################################################
-# PGSparkLite Pedal - Display Drivers
-#
-# Currently only support is provided for an OLED SSD1306 display
-# but this module could be expanded to support other i2c compatible displays
-#
-# Uses AdaFruit SSD1306 library
-# https://github.com/adafruit/Adafruit_Python_SSD1306
-#
-##############################################################################
+#################################################
+# PGSparkLite Pedal - OLED Display (v1 Hardware)
+#################################################
 
 import os
 
@@ -15,7 +8,7 @@ import Adafruit_SSD1306
 from PIL import Image, ImageDraw, ImageFont
 
 
-class oled_display:
+class SSD1306_Display:
 
     def __init__(self, i2c_address, display_height, font, status_size, preset_size):
 
@@ -66,17 +59,16 @@ class oled_display:
         self.disp.display()
 
     def show_selected_preset(self, preset):
-        preset_string = str(preset)
-
-        if self.last_text == preset_string:
+        if self.last_text == preset:
             return
         else:
-            self.last_text = preset_string
+            self.last_text = preset
 
         self.clear_screen()
-        self.draw.text((0, -12), preset_string, font=self.preset_font, fill=255)
+        self.draw.text((0, -12), preset,
+                       font=self.preset_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
 
     def show_unselected_preset(self, preset):
-        self.show_selected_preset(str(preset) + '*')
+        self.show_selected_preset(preset + '*')
