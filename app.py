@@ -11,6 +11,7 @@ import os
 import time
 from signal import SIGINT, signal
 
+import requests
 import socketio
 from gpiozero import LED, Button
 
@@ -18,12 +19,14 @@ import config
 from lib.common import (dict_amp_preset, dict_change_preset,
                         dict_connection_failed, dict_connection_lost,
                         dict_connection_message, dict_connection_success,
-                        dict_delay, dict_drive, dict_effect_type, dict_message,
-                        dict_mod, dict_Off, dict_On, dict_pedal_config_request,
-                        dict_pedal_connect, dict_pedal_status, dict_preset,
-                        dict_refresh_onoff, dict_reverb, dict_state,
-                        dict_toggle_effect_onoff, dict_update_onoff,
-                        dict_update_preset, dict_user_preset, dict_value)
+                        dict_delay, dict_drive, dict_effect_type, dict_id,
+                        dict_message, dict_mod, dict_name, dict_Off, dict_On,
+                        dict_pedal_config_request, dict_pedal_connect,
+                        dict_pedal_status, dict_preset, dict_preset_id,
+                        dict_refresh_onoff, dict_reload_interface, dict_reverb,
+                        dict_state, dict_toggle_effect_onoff,
+                        dict_update_onoff, dict_update_preset,
+                        dict_user_preset, dict_value)
 from lib.display.hd44780 import HD44780_Display
 from lib.display.ssd1306 import SSD1306_Display
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
@@ -52,7 +55,7 @@ delay_button = Button(pin=config.delay_button_gpio)
 mod_led = LED(pin=config.mod_led_gpio)
 mod_button = Button(pin=config.mod_button_gpio, hold_time=5)
 
-# Test for optional reverb switch and LED
+# Test for optional reverb switch and LED (Hardware v2)
 try:
     reverb_led = LED(pin=config.reverb_led_gpio)
     reverb_button = Button(pin=config.reverb_button_gpio)
@@ -66,9 +69,11 @@ except:
 
 try:
     if config.model == 'SSD1306':
+        # v1 Hardware
         display = SSD1306_Display(config.i2c_address, config.display_height,
                                   config.font, config.status_size, config.preset_size)
     elif config.model == 'HD44780':
+        # v2 Hardware
         display = HD44780_Display(
             config.i2c_address, config.display_height, config.display_width)
 except:
@@ -148,11 +153,8 @@ def pedal_toggle(effect_type):
     sio.emit(dict_toggle_effect_onoff, {dict_effect_type: effect_type})
 
 
-def preset_select(preset):
-    global state
-
-    if state.preset_mode == dict_amp_preset:
-        sio.emit(dict_change_preset, {dict_preset: str(preset)})
+def preset_select(preset):    
+    sio.emit(dict_change_preset, {dict_preset: str(preset)})    
 
 
 def reverb():
@@ -162,10 +164,15 @@ def reverb():
 def select():
     global state
 
-    if state.displayed_preset == state.selected_preset:
-        return
-
-    preset_select(state.displayed_preset-1)
+    if state.preset_mode == dict_amp_preset:
+        preset_select(state.displayed_preset-1)
+    else:
+        preset = state.chain_presets[state.displayed_chain_preset-1]
+        data = {dict_preset_id: preset[dict_id]}
+        requests.post(url=config.socketio_url, data=data)
+        
+        # Update any web interface clients of our change
+        sio.emit(dict_reload_interface, data)
 
 
 def select_preset(up):
@@ -183,23 +190,47 @@ def select_preset(up):
 
         if state.displayed_preset == state.selected_preset:
             display.show_selected_preset(
-                dict_amp_preset + str(state.selected_preset))
+                dict_amp_preset + str(state.selected_preset)
+            )
         else:
             display.show_unselected_preset(
-                dict_amp_preset + str(state.displayed_preset))
+                dict_amp_preset + str(state.displayed_preset)
+            )
     else:
-        # TODO: Page through the Chain Preset list we have cached
-        pass
+        chain_preset_count = len(state.chain_presets)
+
+        if state.displayed_chain_preset == chain_preset_count and up == True:
+            state.displayed_chain_preset = 1
+        elif state.displayed_chain_preset == 1 and up == False:
+            state.displayed_chain_preset = chain_preset_count
+        elif up == True:
+            state.displayed_chain_preset += 1
+        else:
+            state.displayed_chain_preset -= 1
+
+        name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
+
+        if state.displayed_chain_preset == state.selected_chain_preset:
+            display.show_selected_preset(
+                dict_user_preset + str(state.selected_chain_preset), name
+            )
+        else:
+            display.show_unselected_preset(
+                dict_user_preset + str(state.displayed_chain_preset), name
+            )
 
 
 def change_preset_type():
     global state
 
     if state.preset_mode == dict_amp_preset:
-        state.preset_mode == dict_user_preset
-        # TODO: Grab the chain preset list
+        state.preset_mode = dict_user_preset
+        request = requests.get(config.socketio_url + '/chainpreset/getlist')
+        state.chain_presets = request.json()
+        display.show_unselected_preset(
+            dict_user_preset + str(state.displayed_chain_preset + 1))
     else:
-        state.preset_mode == dict_amp_preset
+        state.preset_mode = dict_amp_preset
         display.show_unselected_preset(
             dict_amp_preset + str(state.displayed_preset))
 
@@ -259,6 +290,7 @@ def connection_message(data):
         state.connected_to_amp = True
 
         if state.connection_attempts > 0:
+            # TODO: Is it more efficient to do this as a GET?
             sio.emit(dict_pedal_config_request, {})
             state.connection_attempts = 0
 
@@ -275,6 +307,7 @@ def pedal_status(data):
 
     state.selected_preset = int(data[dict_preset]) + 1
     state.displayed_preset = state.selected_preset
+
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
     toggle_led(dict_mod, data[dict_mod])
