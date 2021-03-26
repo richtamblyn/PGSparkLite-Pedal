@@ -42,6 +42,7 @@ class SSD1306_Display:
 
         self.status_font = ImageFont.truetype(font_path, status_size)
         self.preset_font = ImageFont.truetype(font_path, preset_size)
+        self.preset_mode_font = ImageFont.truetype(font_path, preset_size-45)
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
@@ -65,7 +66,10 @@ class SSD1306_Display:
             self.last_text = preset
 
         self.clear_screen()
-        self.draw.text((0, -12), preset,
+
+        # Split the preset text, shrink the mode indicator to fit
+        self.draw.text((0, -12), preset[0], font=self.preset_mode_font, fill=255)
+        self.draw.text((27, -12), preset[1:],
                        font=self.preset_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()

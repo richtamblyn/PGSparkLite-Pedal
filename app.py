@@ -174,6 +174,10 @@ def select():
         # Update any web interface clients of our change
         sio.emit(dict_reload_interface, data)
 
+        state.selected_chain_preset = state.displayed_chain_preset
+
+        display.show_selected_preset(state.get_selected_preset())
+
 
 def select_preset(up):
     global state
@@ -228,7 +232,7 @@ def change_preset_type():
         request = requests.get(config.socketio_url + '/chainpreset/getlist')
         state.chain_presets = request.json()
         display.show_unselected_preset(
-            dict_user_preset + str(state.displayed_chain_preset + 1))
+            dict_user_preset + str(state.displayed_chain_preset))
     else:
         state.preset_mode = dict_amp_preset
         display.show_unselected_preset(
@@ -289,8 +293,7 @@ def connection_message(data):
     if data[dict_message] == dict_connection_success:
         state.connected_to_amp = True
 
-        if state.connection_attempts > 0:
-            # TODO: Is it more efficient to do this as a GET?
+        if state.connection_attempts > 0:            
             sio.emit(dict_pedal_config_request, {})
             state.connection_attempts = 0
 
@@ -302,11 +305,12 @@ def connection_message(data):
 
 @sio.on(dict_pedal_status)
 def pedal_status(data):
-    # Listen for Pedal status updates and update OLED/LEDs as necessary
+    # Listen for status updates from the Amp or Interface and update OLED/LEDs as necessary
     global state
 
     state.selected_preset = int(data[dict_preset]) + 1
     state.displayed_preset = state.selected_preset
+    state.preset_mode = dict_amp_preset
 
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
@@ -335,7 +339,7 @@ def update_preset_display(data):
     # Reset mode to Amp preset
     state.preset_mode = dict_amp_preset
     state.selected_preset = int(data[dict_value]) + 1
-    display.show_selected_preset(state.selected_preset)
+    display.show_selected_preset(state.get_selected_preset())
 
 
 if __name__ == '__main__':
@@ -373,6 +377,14 @@ if __name__ == '__main__':
 
     if reverb_button != None:
         reverb_button.when_pressed = reverb
+
+    # Tests
+    #time.sleep(2)
+    #print('Changing preset type')        
+    #change_preset_type()
+    #time.sleep(2)    
+    #print('Selecting user preset')
+    #select()
 
     sio.wait()
 
