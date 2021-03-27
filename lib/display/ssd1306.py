@@ -69,7 +69,7 @@ class SSD1306_Display:
 
         # Split the preset text, shrink the mode indicator to fit
         self.draw.text((0, -12), preset[0], font=self.preset_mode_font, fill=255)
-        self.draw.text((27, -12), preset[1:],
+        self.draw.text((30, -12), preset[1:],
                        font=self.preset_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
