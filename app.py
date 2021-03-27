@@ -171,8 +171,9 @@ def select():
         data = {dict_preset_id: preset[dict_id]}
         requests.post(url=config.socketio_url, data=data)
         
-        # Update any web interface clients of our change
+        # Update other clients of our change
         sio.emit(dict_reload_interface, data)
+        sio.emit(dict_pedal_config_request, {})
 
         state.selected_chain_preset = state.displayed_chain_preset
 
