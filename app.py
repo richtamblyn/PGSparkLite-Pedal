@@ -16,12 +16,12 @@ import socketio
 from gpiozero import LED, Button
 
 import config
-from lib.common import (dict_amp_preset, dict_change_preset,
+from lib.common import (dict_amp_preset, dict_BPM, dict_change_preset,
                         dict_connection_failed, dict_connection_lost,
                         dict_connection_message, dict_connection_success,
                         dict_delay, dict_drive, dict_effect_type, dict_id,
-                        dict_message, dict_mod, dict_name, dict_Off, dict_On,
-                        dict_pedal_config_request, dict_pedal_connect,
+                        dict_message, dict_mod, dict_name, dict_Name, dict_Off,
+                        dict_On, dict_pedal_config_request, dict_pedal_connect,
                         dict_pedal_status, dict_preset, dict_preset_id,
                         dict_refresh_onoff, dict_reload_interface, dict_reverb,
                         dict_state, dict_toggle_effect_onoff,
@@ -75,7 +75,7 @@ try:
     elif config.model == 'HD44780':
         # v2 Hardware
         display = HD44780_Display(
-            config.i2c_address, config.display_height, config.display_width)
+            config.i2c_address, config.port_expander, config.display_height, config.display_width)
 except:
     # Default to v1 OLED display
     display = SSD1306_Display(config.i2c_address, config.display_height,
@@ -153,8 +153,8 @@ def pedal_toggle(effect_type):
     sio.emit(dict_toggle_effect_onoff, {dict_effect_type: effect_type})
 
 
-def preset_select(preset):    
-    sio.emit(dict_change_preset, {dict_preset: str(preset)})    
+def preset_select(preset):
+    sio.emit(dict_change_preset, {dict_preset: str(preset)})
 
 
 def reverb():
@@ -170,7 +170,7 @@ def select():
         preset = state.chain_presets[state.displayed_chain_preset-1]
         data = {dict_preset_id: preset[dict_id]}
         requests.post(url=config.socketio_url, data=data)
-        
+
         # Update other clients of our change
         sio.emit(dict_reload_interface, data)
         sio.emit(dict_pedal_config_request, {})
@@ -294,7 +294,7 @@ def connection_message(data):
     if data[dict_message] == dict_connection_success:
         state.connected_to_amp = True
 
-        if state.connection_attempts > 0:            
+        if state.connection_attempts > 0:
             sio.emit(dict_pedal_config_request, {})
             state.connection_attempts = 0
 
@@ -312,12 +312,14 @@ def pedal_status(data):
     state.selected_preset = int(data[dict_preset]) + 1
     state.displayed_preset = state.selected_preset
     state.preset_mode = dict_amp_preset
+    state.bpm = data[dict_BPM]
+    state.name = data[dict_Name]
 
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
     toggle_led(dict_mod, data[dict_mod])
 
-    display.show_selected_preset(state.get_selected_preset())
+    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = state.bpm)
 
 
 @sio.on(dict_refresh_onoff)
@@ -380,12 +382,12 @@ if __name__ == '__main__':
         reverb_button.when_pressed = reverb
 
     # Tests
-    #time.sleep(2)
-    #print('Changing preset type')        
-    #change_preset_type()
-    #time.sleep(2)    
-    #print('Selecting user preset')
-    #select()
+    # time.sleep(2)
+    # print('Changing preset type')
+    # change_preset_type()
+    # time.sleep(2)
+    # print('Selecting user preset')
+    # select()
 
     sio.wait()
 

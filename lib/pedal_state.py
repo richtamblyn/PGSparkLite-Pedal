@@ -11,6 +11,8 @@ class PedalState:
         self.displayed_chain_preset = 1
         self.selected_chain_preset = 0
         self.chain_presets = []
+        self.bpm = 0
+        self.name = None
 
     def get_selected_preset(self):
         if self.preset_mode == dict_amp_preset:
