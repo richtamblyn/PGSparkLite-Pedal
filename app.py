@@ -16,17 +16,18 @@ import socketio
 from gpiozero import LED, Button
 
 import config
-from lib.common import (dict_amp_preset, dict_BPM, dict_change_preset,
-                        dict_connection_failed, dict_connection_lost,
-                        dict_connection_message, dict_connection_success,
-                        dict_delay, dict_drive, dict_effect_type, dict_id,
-                        dict_message, dict_mod, dict_name, dict_Name, dict_Off,
-                        dict_On, dict_pedal_config_request, dict_pedal_connect,
+from lib.common import (dict_amp_preset, dict_BPM, dict_chain_preset,
+                        dict_change_preset, dict_connection_failed,
+                        dict_connection_lost, dict_connection_message,
+                        dict_connection_success, dict_delay, dict_drive,
+                        dict_effect_type, dict_id, dict_message, dict_mod,
+                        dict_name, dict_Name, dict_Off, dict_On,
+                        dict_pedal_config_request, dict_pedal_connect,
                         dict_pedal_status, dict_preset, dict_preset_id,
                         dict_refresh_onoff, dict_reload_interface, dict_reverb,
                         dict_state, dict_toggle_effect_onoff,
                         dict_update_onoff, dict_update_preset,
-                        dict_user_preset, dict_value)
+                        dict_user_preset)
 from lib.display.hd44780 import HD44780_Display
 from lib.display.ssd1306 import SSD1306_Display
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
@@ -95,6 +96,27 @@ def clean_exit():
 
 def do_connect():
     sio.emit(dict_pedal_connect, {})
+
+
+def get_user_presets():
+    request = requests.get(config.socketio_url + '/chainpreset/getlist')
+    return request.json()
+
+
+def get_user_preset_index(id):
+    global state
+
+    count = 0
+
+    if len(state.chain_presets) == 0:
+        # Populate the pedal state
+        state.chain_presets = get_user_presets()
+
+    for preset in state.chain_presets:
+        if preset[dict_id] == id:
+            return count
+
+        count +=1
 
 
 def keyboard_exit_handler(signal_received, frame):
@@ -229,9 +251,8 @@ def change_preset_type():
     global state
 
     if state.preset_mode == dict_amp_preset:
-        state.preset_mode = dict_user_preset
-        request = requests.get(config.socketio_url + '/chainpreset/getlist')
-        state.chain_presets = request.json()
+        state.preset_mode = dict_user_preset        
+        state.chain_presets = get_user_presets()        
         display.show_unselected_preset(
             dict_user_preset + str(state.displayed_chain_preset))
     else:
@@ -308,12 +329,16 @@ def connection_message(data):
 def pedal_status(data):
     # Listen for status updates from the Amp or Interface and update OLED/LEDs as necessary
     global state
+    
+    if data[dict_chain_preset] != 0:
+        state.preset_mode = dict_user_preset
+        state.selected_chain_preset = get_user_preset_index(data[dict_chain_preset]) + 1
+        state.displayed_chain_preset = state.selected_chain_preset
+    else:
+        state.preset_mode = dict_amp_preset
+        state.selected_preset = int(data[dict_preset]) + 1
+        state.displayed_preset = state.selected_preset
 
-    state.selected_preset = int(data[dict_preset]) + 1
-    state.displayed_preset = state.selected_preset
-
-    # TODO: Check whether a user preset has been applied
-    state.preset_mode = dict_amp_preset
     state.bpm = data[dict_BPM]
     state.name = data[dict_Name]
 

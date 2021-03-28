@@ -1,5 +1,6 @@
 dict_amp_preset = 'A'
 dict_BPM = 'BPM'
+dict_chain_preset = 'chain_preset'
 dict_change_preset = 'change_preset'
 dict_connection_failed = 'Connection failed.'
 dict_connection_lost = 'connection-lost'
