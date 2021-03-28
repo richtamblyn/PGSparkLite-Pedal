@@ -311,15 +311,18 @@ def pedal_status(data):
 
     state.selected_preset = int(data[dict_preset]) + 1
     state.displayed_preset = state.selected_preset
+
+    # TODO: Check whether a user preset has been applied
     state.preset_mode = dict_amp_preset
     state.bpm = data[dict_BPM]
     state.name = data[dict_Name]
 
+    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = state.bpm)
+
     toggle_led(dict_drive, data[dict_drive])
     toggle_led(dict_delay, data[dict_delay])
     toggle_led(dict_mod, data[dict_mod])
-
-    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = state.bpm)
+    toggle_led(dict_reverb, data[dict_reverb])    
 
 
 @sio.on(dict_refresh_onoff)
@@ -336,14 +339,10 @@ def update_onoff(data):
 
 @sio.on(dict_update_preset)
 def update_preset_display(data):
-    # Listen for change of Preset to update OLED screen
-    global state
-
-    # Reset mode to Amp preset
-    state.preset_mode = dict_amp_preset
-    state.selected_preset = int(data[dict_value]) + 1
-    display.show_selected_preset(state.get_selected_preset())
-
+    # We no longer process this update and instead wait for the status
+    # of the pedals before changing the display and LED states.
+    pass
+    
 
 if __name__ == '__main__':
     signal(SIGINT, keyboard_exit_handler)
