@@ -123,7 +123,7 @@ class HD44780_Large_Font:
     def write_string(self, text):
 
         x = 0
-        space = 4
+        space = 3
 
         for letter in text:
 
@@ -141,6 +141,18 @@ class HD44780_Large_Font:
                 self.print_3(x)
             elif letter == '4':
                 self.print_4(x)
+            elif letter == '5':
+                self.print_5(x)
+            elif letter == '6':
+                self.print_6(x)
+            elif letter == '7':
+                self.print_7(x)
+            elif letter == '8':
+                self.print_8(x)
+            elif letter == '9':
+                self.print_9(x)
+            elif letter == '0':
+                self.print_0(x)
             
             x += space
 
@@ -194,3 +206,55 @@ class HD44780_Large_Font:
         y = x + 2
         self.lcd.cursor_pos = (1, y)
         self.lcd.write(255)
+
+    def print_5(self, x):
+        self.lcd.write(255)
+        self.lcd.write(self.umb)
+        self.lcd.write(self.umb)
+        self.lcd.cursor_pos = (1, x)
+        self.lcd.write(self.lmb)
+        self.lcd.write(self.lmb)
+        self.lcd.write(self.lr)
+
+    def print_6(self, x):
+        self.lcd.write(self.lt)
+        self.lcd.write(self.umb)
+        self.lcd.write(self.umb)
+        self.lcd.cursor_pos = (1, x)
+        self.lcd.write(self.ll)
+        self.lcd.write(self.umb)
+        self.lcd.write(self.lr)
+
+    def print_7(self, x):
+        self.lcd.write(self.ub)
+        self.lcd.write(self.ub)
+        self.lcd.write(self.rt)
+        y = x + 1
+        self.lcd.cursor_pos = (1, y)
+        self.lcd.write(self.lt)
+
+    def print_8(self, x):
+        self.lcd.write(self.lt)
+        self.lcd.write(self.umb)
+        self.lcd.write(self.rt)
+        self.lcd.cursor_pos = (1, x)
+        self.lcd.write(self.ll)
+        self.lcd.write(self.lmb)
+        self.lcd.write(self.lr)
+
+    def print_9(self, x):
+        self.lcd.write(self.lt)
+        self.lcd.write(self.umb)
+        self.lcd.write(self.rt)
+        y = x + 2
+        self.lcd.cursor_pos = (1, y)
+        self.lcd.write(255)
+
+    def print_0(self, x):
+        self.lcd.write(self.lt)
+        self.lcd.write(self.ub)
+        self.lcd.write(self.rt)
+        self.lcd.cursor_pos = (1, x)
+        self.lcd.write(self.ll)
+        self.lcd.write(self.lb)
+        self.lcd.write(self.lr)
