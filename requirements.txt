@@ -4,3 +4,5 @@ Adafruit-SSD1306
 requests
 rpi-gpio
 gpiozero
+RPLCD
+smbus2

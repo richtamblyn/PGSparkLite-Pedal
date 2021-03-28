@@ -59,7 +59,7 @@ class SSD1306_Display:
         self.disp.image(self.image)
         self.disp.display()
 
-    def show_selected_preset(self, preset, name = None):
+    def show_selected_preset(self, preset, name = None, bpm = None):
         if self.last_text == preset:
             return
         else:
@@ -74,5 +74,5 @@ class SSD1306_Display:
         self.disp.image(self.image)
         self.disp.display()
 
-    def show_unselected_preset(self, preset, name = None):
+    def show_unselected_preset(self, preset, name = None, bpm = None):
         self.show_selected_preset(preset + '*')
