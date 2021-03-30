@@ -123,7 +123,7 @@ class HD44780_Large_Font:
     def write_string(self, text):
 
         x = 0
-        space = 3
+        space = 4
 
         for letter in text:
 

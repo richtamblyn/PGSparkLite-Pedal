@@ -188,6 +188,7 @@ def select():
 
     if state.preset_mode == dict_amp_preset:
         preset_select(state.displayed_preset-1)
+        state.selected_chain_preset = 0
     else:
         preset = state.chain_presets[state.displayed_chain_preset-1]
         data = {dict_preset_id: preset[dict_id]}
@@ -198,6 +199,7 @@ def select():
         sio.emit(dict_pedal_config_request, {})
 
         state.selected_chain_preset = state.displayed_chain_preset
+        state.selected_preset = 0
 
         display.show_selected_preset(state.get_selected_preset())
 
