@@ -54,6 +54,9 @@ class SSD1306_Display:
         else:
             self.last_text = status
 
+        # Clean up return lines
+        status = status.replace('\r','')
+
         self.clear_screen()
         self.draw.text((0, -2), status, font=self.status_font, fill=255)
         self.disp.image(self.image)
