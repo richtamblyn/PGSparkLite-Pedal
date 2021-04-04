@@ -71,3 +71,4 @@ mod_button_gpio = 13
 # Optional switches (Hardware v2)
 reverb_led_gpio = 1
 reverb_button_gpio = 7
+preset_button_gpio = 23

@@ -60,9 +60,11 @@ mod_button = Button(pin=config.mod_button_gpio, hold_time=5)
 try:
     reverb_led = LED(pin=config.reverb_led_gpio)
     reverb_button = Button(pin=config.reverb_button_gpio)
+    preset_button = Button(pin=config.preset_button_gpio)
 except:
     reverb_led = None
     reverb_button = None
+    preset_button = None
 
 #####################
 # Initialise Display
@@ -406,6 +408,9 @@ if __name__ == '__main__':
 
     if reverb_button != None:
         reverb_button.when_pressed = reverb
+
+    if preset_button != None:
+        preset_button.when_pressed = change_preset_type
 
     # Tests
     # time.sleep(2)
