@@ -25,12 +25,12 @@ class HD44780_Display:
     def show_selected_preset(self, preset, name=None, bpm=None):
         self.lcd.clear()
         self.big_font.write_string(preset)
-        self.lcd.cursor_pos = (3,0)
-        
-        if len(name) > 20:
-            name = name[:17] + '...'
+        self.lcd.cursor_pos = (3,0)                
 
         if name != None:
+            if len(name) > 20:
+                name = name[:17] + '...'
+                
             self.lcd.write_string(name)
 
         if bpm != None:
