@@ -7,6 +7,7 @@ This project extends the functionality of the PGSparkLite web interface (https:/
 ## Current Features
 
 - Amp Preset selection footswitches - Use Up/Down switches to move through amp presets 1-4 and hit Select switch to change.
+- User Preset selection - Press the Up switch for 2 seconds to change between cycling through Amp or User presets.
 - Dedicated Drive Pedal On/Off footswitch and LED indicator
 - Dedicated Delay Pedal On/Off footswitch and LED indicator
 - Dedicated Modulation Pedal On/Off footswitch and LED indicator
