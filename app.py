@@ -204,7 +204,7 @@ def select_preset(up):
 
         if state.displayed_preset == state.selected_preset:
             display.show_selected_preset(
-                dict_amp_preset + str(state.selected_preset)
+                dict_amp_preset + str(state.selected_preset), state.name, state.bpm
             )
         else:
             display.show_unselected_preset(
@@ -226,7 +226,7 @@ def select_preset(up):
 
         if state.displayed_chain_preset == state.selected_chain_preset:
             display.show_selected_preset(
-                dict_user_preset + str(state.selected_chain_preset), name
+                dict_user_preset + str(state.selected_chain_preset), name, state.bpm
             )
         else:
             display.show_unselected_preset(
@@ -239,9 +239,12 @@ def change_preset_type():
 
     if state.preset_mode == dict_amp_preset:
         state.preset_mode = dict_user_preset        
-        state.chain_presets = get_user_presets()        
+        state.chain_presets = get_user_presets()
+
+        name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
+
         display.show_unselected_preset(
-            dict_user_preset + str(state.displayed_chain_preset))
+            dict_user_preset + str(state.displayed_chain_preset), name)
     else:
         state.preset_mode = dict_amp_preset
         display.show_unselected_preset(
