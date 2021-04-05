@@ -93,7 +93,9 @@ def get_user_preset_index(id):
 
     count = 0
 
-    if len(state.chain_presets) == 0:
+    chain_preset_count = len(state.chain_presets)
+
+    if chain_preset_count == 0 or id > chain_preset_count:
         # Populate the pedal state
         state.chain_presets = get_user_presets()
 
