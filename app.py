@@ -28,12 +28,11 @@ from lib.common import (dict_amp_preset, dict_BPM, dict_chain_preset,
                         dict_state, dict_toggle_effect_onoff,
                         dict_update_onoff, dict_update_preset,
                         dict_user_preset)
-from lib.display.hd44780 import HD44780_Display
-from lib.display.ssd1306 import SSD1306_Display
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_no_connection, msg_pgsparklite_ok,
                           msg_shutting_down)
 from lib.pedal_state import PedalState
+from lib.display.display_server import DisplayServer
 
 ########
 # Setup
@@ -42,6 +41,8 @@ from lib.pedal_state import PedalState
 sio = socketio.Client()
 
 state = PedalState()
+
+display = DisplayServer(config)
 
 up_button = Button(pin=config.up_button_gpio, hold_time=2)
 down_button = Button(pin=config.down_button_gpio)
@@ -65,24 +66,6 @@ except:
     reverb_led = None
     reverb_button = None
     preset_button = None
-
-#####################
-# Initialise Display
-#####################
-
-try:
-    if config.model == 'SSD1306':
-        # v1 Hardware
-        display = SSD1306_Display(config.i2c_address, config.display_height,
-                                  config.font, config.status_size, config.preset_size)
-    elif config.model == 'HD44780':
-        # v2 Hardware
-        display = HD44780_Display(
-            config.i2c_address, config.port_expander, config.display_height, config.display_width)
-except:
-    # Default to v1 OLED display
-    display = SSD1306_Display(config.i2c_address, config.display_height,
-                              config.font, config.status_size, config.preset_size)
 
 
 ####################
@@ -392,8 +375,7 @@ if __name__ == '__main__':
         pass
 
     # Set up the footswitch functions
-    up_button.when_pressed = up
-    up_button.when_held = change_preset_type
+    up_button.when_pressed = up    
 
     down_button.when_pressed = down
 
@@ -411,14 +393,8 @@ if __name__ == '__main__':
 
     if preset_button != None:
         preset_button.when_pressed = change_preset_type
-
-    # Tests
-    # time.sleep(2)
-    # print('Changing preset type')
-    # change_preset_type()
-    # time.sleep(2)
-    # print('Selecting user preset')
-    # select()
+    else:
+        up_button.when_held = change_preset_type    
 
     sio.wait()
 
