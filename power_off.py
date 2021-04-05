@@ -1,8 +1,8 @@
-from config import font, i2c_address, preset_size, status_size, display_height
-from lib.display import oled_display
+import config
+from lib.display.display_server import DisplayServer
 from lib.messages import msg_power_off
 
-display = oled_display(i2c_address, display_height, font, status_size, preset_size)
+display = DisplayServer(config)
 
 display.display_status(msg_power_off)
 

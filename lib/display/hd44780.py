@@ -26,8 +26,10 @@ class HD44780_Display:
         self.lcd.clear()
         self.big_font.write_string(preset)
         self.lcd.cursor_pos = (3,0)
+        
+        if len(name) > 20:
+            name = name[:17] + '...'
 
-        # TODO: Chop this if it's too long
         if name != None:
             self.lcd.write_string(name)
 
