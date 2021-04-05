@@ -238,9 +238,14 @@ def change_preset_type():
     global state
 
     if state.preset_mode == dict_amp_preset:
-        state.preset_mode = dict_user_preset        
         state.chain_presets = get_user_presets()
 
+        if len(state.chain_presets) == 0:
+            # User does not have any custom presets currently
+            return
+
+        state.preset_mode = dict_user_preset        
+        
         name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
 
         display.show_unselected_preset(
