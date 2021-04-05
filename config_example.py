@@ -15,22 +15,29 @@
 
 socketio_url = 'http://localhost:5000'
 
-############################################################################
-# OLED Display Address
-# --------------------
-# Change the line below to match the result of 'i2cdetect -y 1' (if not 3c)
-############################################################################
+################################################################
+# Display Model and Address
+# -------------------------
+# Change the line below to match the result of 'i2cdetect -y 1'
+################################################################
 
+model = 'SSD1306' #v1 Hardware
+#model = 'HD44780' #v2 Hardware
 i2c_address = 0x3C
+port_expander = 'PCF8574' #v2 Hardware only
+#port_expander = 'MCP23008' #v2 Hardware only
+#port_expander = 'MCP23017' #v2 Hardware only
 
 ####################################################################
-# OLED Display Resolution
+# Display Resolution
 # -----------------------
 # Comment/uncomment the lines below to suit your display resolution
 ####################################################################
 
-display_height = 64
-# display_height = 32
+display_height = 64 #v1 Hardware
+# display_height = 32 #v1 Hardware
+# display_height = 4 #v2 Hardware
+display_width = 20 #v2 Hardware only
 
 ###################################################################
 # OLED TrueType Font
@@ -60,3 +67,8 @@ delay_button_gpio = 6
 
 mod_led_gpio = 14 # We use this LED as a Power indicator until the code starts up.
 mod_button_gpio = 13
+
+# Optional switches (Hardware v2)
+reverb_led_gpio = 18
+reverb_button_gpio = 24
+preset_button_gpio = 23
