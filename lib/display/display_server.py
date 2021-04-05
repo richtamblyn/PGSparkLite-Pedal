@@ -64,4 +64,4 @@ class DisplayServer:
 class DisplayRequest:
     def __init__(self, type, params):
         self.type = type
-        self.paramas = params
+        self.params = params
