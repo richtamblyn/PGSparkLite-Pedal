@@ -47,20 +47,18 @@ class DisplayServer:
 
     def queue_processor(self):
         while True:
-            request_item = self.process_queue.get()
+            request_item = self.process_queue.get(True)
 
             if request_item.type == 'clear_screen':
                 self.display.clear_screen()
             elif request_item.type == 'display_status':
-                self.display.display_status(request_item.paramas[0])
+                self.display.display_status(request_item.params[0])
             elif request_item.type == 'show_selected_preset':
                 self.display.show_selected_preset(
                     request_item.params[0], request_item.params[1], request_item.params[2])
             elif request_item.type == 'show_unselected_preset':
                 self.display.show_unselected_preset(
-                    request_item.params[0], request_item.params[1], request_item.params[2])
-
-            self.process_queue.task_done()
+                    request_item.params[0], request_item.params[1], request_item.params[2])            
 
 
 class DisplayRequest:
