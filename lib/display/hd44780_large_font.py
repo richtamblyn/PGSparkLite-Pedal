@@ -9,6 +9,20 @@ class HD44780_Large_Font:
 
         self.lt = 255
 
+        ast_lt_template = (
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00000,
+            0b11100,
+            0b01110,
+            0b00111,
+            0b00011
+        )
+
+        self.ast_lt = 0
+        self.lcd.create_char(self.ast_lt, ast_lt_template)
+
         ub_template = (
             0b11111,
             0b11111,
@@ -23,6 +37,34 @@ class HD44780_Large_Font:
         self.ub = 1
         self.lcd.create_char(self.ub, ub_template)
        
+        ast_rt_template = (
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00111,
+            0b01110,
+            0b11100,
+            0b11000
+        )
+
+        self.ast_rt = 2
+        self.lcd.create_char(self.ast_rt, ast_rt_template)
+
+        ast_lb_template = (
+            0b00111,
+            0b01110,
+            0b11100,
+            0b11000,
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00000            
+        )
+
+        self.ast_lb = 3
+        self.lcd.create_char(self.ast_lb, ast_lb_template)
+
         self.rt = 255        
         self.ll = 255        
 
@@ -41,6 +83,20 @@ class HD44780_Large_Font:
         self.lcd.create_char(self.lb, lb_template)        
 
         self.lr = 255        
+
+        ast_rb_template = (
+            0b11100,
+            0b01110,
+            0b00111,
+            0b00011,
+            0b00000,
+            0b00000,
+            0b00000,
+            0b00000            
+        )
+
+        self.ast_rb = 5
+        self.lcd.create_char(self.ast_rb, ast_rb_template)
 
         umb_template = (
             0b11111,
@@ -127,13 +183,13 @@ class HD44780_Large_Font:
         self.lcd.write(self.lr)
 
     def print_asterisk(self, x):
-        self.lcd.write(self.umb)
+        self.lcd.write(self.ast_lt)
         self.lcd.write(255)
-        self.lcd.write(self.umb)
+        self.lcd.write(self.ast_rt)
         self.lcd.cursor_pos = (1, x)
-        self.lcd.write(self.lmb)
+        self.lcd.write(self.ast_lb)
         self.lcd.write(255)
-        self.lcd.write(self.lmb)
+        self.lcd.write(self.ast_rb)
 
     def print_1(self, x):        
         self.lcd.write(self.ub)
