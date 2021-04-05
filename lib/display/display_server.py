@@ -34,7 +34,7 @@ class DisplayServer:
         self.process_queue.put_nowait(request)
 
     def display_status(self, status):
-        request = DisplayRequest('display_status', (status))
+        request = DisplayRequest('display_status', (status,))
         self.process_queue.put_nowait(request)
 
     def show_selected_preset(self, preset, name=None, bpm=None):
