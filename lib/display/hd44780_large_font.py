@@ -5,22 +5,9 @@
 class HD44780_Large_Font:
     def __init__(self, lcd):
 
-        self.lcd = lcd
+        self.lcd = lcd        
 
-        # Create the 8 building blocks of the font
-        lt_template = (
-            0b00111,
-            0b01111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111
-        )
-
-        self.lt = 0
-        self.lcd.create_char(self.lt, lt_template)
+        self.lt = 255
 
         ub_template = (
             0b11111,
@@ -35,34 +22,9 @@ class HD44780_Large_Font:
 
         self.ub = 1
         self.lcd.create_char(self.ub, ub_template)
-
-        rt_template = (
-            0b11100,
-            0b11110,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111
-        )
-
-        self.rt = 2
-        self.lcd.create_char(self.rt, rt_template)
-
-        ll_template = (
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b01111,
-            0b00111
-        )
-
-        self.ll = 3
-        self.lcd.create_char(self.ll, ll_template)
+       
+        self.rt = 255        
+        self.ll = 255        
 
         lb_template = (
             0b00000,
@@ -76,21 +38,9 @@ class HD44780_Large_Font:
         )
 
         self.lb = 4
-        self.lcd.create_char(self.lb, lb_template)
+        self.lcd.create_char(self.lb, lb_template)        
 
-        lr_template = (
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11111,
-            0b11110,
-            0b11100
-        )
-
-        self.lr = 5
-        self.lcd.create_char(self.lr, lr_template)
+        self.lr = 255        
 
         umb_template = (
             0b11111,
