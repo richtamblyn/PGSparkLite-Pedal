@@ -69,6 +69,6 @@ mod_led_gpio = 14 # We use this LED as a Power indicator until the code starts u
 mod_button_gpio = 13
 
 # Optional switches (Hardware v2)
-reverb_led_gpio = 1
-reverb_button_gpio = 7
+reverb_led_gpio = 18
+reverb_button_gpio = 24
 preset_button_gpio = 23

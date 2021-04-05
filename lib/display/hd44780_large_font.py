@@ -133,6 +133,8 @@ class HD44780_Large_Font:
                 self.print_A(x)
             elif letter == 'U':
                 self.print_U(x)
+            elif letter == '*':
+                self.print_asterisk(x)
             elif letter == '1':
                 self.print_1(x)
             elif letter == '2':
@@ -173,6 +175,15 @@ class HD44780_Large_Font:
         self.lcd.write(self.ll)
         self.lcd.write(self.lb)
         self.lcd.write(self.lr)
+
+    def print_asterisk(self, x):
+        self.lcd.write(self.umb)
+        self.lcd.write(255)
+        self.lcd.write(self.umb)
+        self.lcd.cursor_pos = (1, x)
+        self.lcd.write(self.lmb)
+        self.lcd.write(255)
+        self.lcd.write(self.lmb)
 
     def print_1(self, x):        
         self.lcd.write(self.ub)
