@@ -180,13 +180,14 @@ def select():
         requests.post(url=config.socketio_url, data=data)
 
         # Update other clients of our change
-        sio.emit(dict_reload_interface, data)
-        sio.emit(dict_pedal_config_request, {})
+        sio.emit(dict_reload_interface, data)        
 
         state.selected_chain_preset = state.displayed_chain_preset
         state.selected_preset = 0
 
         display.show_selected_preset(state.get_selected_preset())
+
+    sio.emit(dict_pedal_config_request, {})
 
 
 def select_preset(up):
@@ -355,7 +356,7 @@ def update_onoff(data):
 @sio.on(dict_update_preset)
 def update_preset_display(data):
     # We no longer process this update and instead wait for the status
-    # of the pedals before changing the display and LED states.
+    # of the pedals before changing the display and LED states.    
     pass
     
 
