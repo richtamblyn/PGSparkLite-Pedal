@@ -13,3 +13,4 @@ lib/display/__pycache__/__init__.cpython-37.pyc
 lib/display/__pycache__/hd44780.cpython-37.pyc
 lib/display/__pycache__/ssd1306.cpython-37.pyc
 lib/display/__pycache__/hd44780_large_font.cpython-37.pyc
+lib/display/__pycache__/display_server.cpython-37.pyc
