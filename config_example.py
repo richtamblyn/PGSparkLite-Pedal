@@ -23,7 +23,8 @@ socketio_url = 'http://localhost:5000'
 
 model = 'SSD1306' #v1 Hardware
 #model = 'HD44780' #v2 Hardware
-i2c_address = 0x3C
+i2c_address = 0x3C #Common address for OLED
+#i2c_address = 0x27 #Common address for LCD
 port_expander = 'PCF8574' #v2 Hardware only
 #port_expander = 'MCP23008' #v2 Hardware only
 #port_expander = 'MCP23017' #v2 Hardware only
