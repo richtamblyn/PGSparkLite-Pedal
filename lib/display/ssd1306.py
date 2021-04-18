@@ -88,6 +88,6 @@ class SSD1306_Display:
 
         self.clear_screen()
         self.draw.text((0, -2), 'Tap Tempo', font=self.status_font, fill=255)
-        self.draw.text((0, 15), str(tempo), font=self.preset_mode_font, fill=255)
+        self.draw.text((0, 15), "{:.0f}".format(tempo), font=self.preset_mode_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
