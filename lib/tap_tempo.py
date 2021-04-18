@@ -32,4 +32,5 @@ class TapTempo:
         if self.tap_count > 4:
             now_tap_time = datetime.now()
             difference = (now_tap_time - self.start_tap_time)            
-            self.tempo = 60 * self.tap_count / difference.seconds            
+            self.tempo = 60 * self.tap_count / difference.seconds
+            self.tap_count = 0            
