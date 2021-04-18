@@ -32,5 +32,8 @@ class TapTempo:
         if self.tap_count > 4:
             now_tap_time = datetime.now()
             difference = (now_tap_time - self.start_tap_time)            
-            self.tempo = (60 * self.tap_count / difference.seconds) / 3
+            self.tempo = (60 * self.tap_count / difference.total_seconds())
+            print('Original tempo: ' + str(self.tempo))
+            self.tempo = self.tempo / 3
+            print('Fixed tempo: ' + str(self.tempo))
             self.tap_count = 0            
