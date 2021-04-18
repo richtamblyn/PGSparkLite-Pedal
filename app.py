@@ -289,7 +289,7 @@ def tap_on():
     global tap_tempo
     global state
 
-    tap_tempo.enable(state.bpm)
+    tap_tempo.enable(float(state.bpm))
 
     display.tap_mode(tap_tempo.tempo)
 
@@ -298,9 +298,7 @@ def tap_off():
     global tap_tempo
     tap_tempo.disable()
 
-    #TODO: Send the tempo to the pedal
-    print(tap_tempo.tempo)
-
+    #TODO: Send the tempo to the pedal    
     #TODO: Reset the screen
 
 
@@ -453,6 +451,18 @@ if __name__ == '__main__':
         preset_button.when_pressed = change_preset_type
     else:
         up_button.when_held = change_preset_type        
+
+    ##########################
+    # Tests can be fired here 
+    ##########################
+
+    #time.sleep(2)
+
+    #tap_on()
+
+    ##########################
+    # End of tests
+    ##########################
 
     sio.wait()
 
