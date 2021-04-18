@@ -42,7 +42,7 @@ class SSD1306_Display:
 
         self.status_font = ImageFont.truetype(font_path, status_size)
         self.preset_font = ImageFont.truetype(font_path, preset_size)
-        self.preset_mode_font = ImageFont.truetype(font_path, preset_size-45)
+        self.preset_mode_font = ImageFont.truetype(font_path, preset_size-45)        
 
     def clear_screen(self):
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
@@ -79,3 +79,15 @@ class SSD1306_Display:
 
     def show_unselected_preset(self, preset, name = None, bpm = None):
         self.show_selected_preset(preset + '*')
+
+    def tap_mode(self, tempo):
+        if self.last_text == tempo:
+            return
+        else:
+            self.last_text = tempo
+
+        self.clear_screen()
+        self.draw.text((0, -2), 'Tap Tempo', font=self.status_font, fill=255)
+        self.draw.text((0, 15), str(tempo), font=self.preset_mode_font, fill=255)
+        self.disp.image(self.image)
+        self.disp.display()

@@ -9,6 +9,7 @@
 
 import os
 import time
+from datetime import datetime
 from signal import SIGINT, signal
 
 import requests
@@ -28,11 +29,12 @@ from lib.common import (dict_amp_preset, dict_BPM, dict_chain_preset,
                         dict_state, dict_toggle_effect_onoff,
                         dict_update_onoff, dict_update_preset,
                         dict_user_preset)
+from lib.display.display_server import DisplayServer
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_no_connection, msg_pgsparklite_ok,
                           msg_shutting_down)
 from lib.pedal_state import PedalState
-from lib.display.display_server import DisplayServer
+from lib.tap_tempo import TapTempo
 
 ########
 # Setup
@@ -44,24 +46,39 @@ state = PedalState()
 
 display = DisplayServer(config)
 
+tap_tempo = TapTempo()
+
+# Single touch to move up presets, hold for 2 seconds to change preset type
 up_button = Button(pin=config.up_button_gpio, hold_time=2)
-down_button = Button(pin=config.down_button_gpio)
+
+# Single touch to move down presets, hold for 2 seconds to enable tap tempo mode
+down_button = Button(pin=config.down_button_gpio, hold_time=2)
+
+# Single touch to select preset or if tap_mode, send tap tempo to the amp
 select_button = Button(pin=config.select_button_gpio)
 
-drive_led = LED(pin=config.drive_led_gpio)
+#Single touch to turn drive pedal on/off
 drive_button = Button(pin=config.drive_button_gpio)
+drive_led = LED(pin=config.drive_led_gpio)
 
-delay_led = LED(pin=config.delay_led_gpio)
+# Single touch to turn delay pedal on/off
 delay_button = Button(pin=config.delay_button_gpio)
+delay_led = LED(pin=config.delay_led_gpio)
 
 mod_led = LED(pin=config.mod_led_gpio)
+
+# Single touch to turn mod pedal on/off, hold for 5 seconds to shutdown the pedal
 mod_button = Button(pin=config.mod_button_gpio, hold_time=5)
 
 # Test for optional reverb switch and LED (Hardware v2)
-try:
-    reverb_led = LED(pin=config.reverb_led_gpio)
+try:    
+    # Single touch to turn reverb pedal on/off
     reverb_button = Button(pin=config.reverb_button_gpio)
+
+    # Single touch to change preset type
     preset_button = Button(pin=config.preset_button_gpio)
+
+    reverb_led = LED(pin=config.reverb_led_gpio)
 except:
     reverb_led = None
     reverb_button = None
@@ -193,24 +210,29 @@ def reverb():
 
 
 def select():
-    global state
+    global tap_tempo
 
-    if state.preset_mode == dict_amp_preset:
-        preset_select(state.displayed_preset-1)
-        state.selected_chain_preset = 0
-    else:
-        preset = state.chain_presets[state.displayed_chain_preset-1]
-        data = {dict_preset_id: preset[dict_id]}
-        requests.post(url=config.socketio_url, data=data)
+    if tap_tempo.enabled:
+        tap_off()
+    else:        
+        global state
 
-        # Update other clients of our change
-        sio.emit(dict_reload_interface, data)
-        sio.emit(dict_pedal_config_request, {})
+        if state.preset_mode == dict_amp_preset:
+            preset_select(state.displayed_preset-1)
+            state.selected_chain_preset = 0
+        else:
+            preset = state.chain_presets[state.displayed_chain_preset-1]
+            data = {dict_preset_id: preset[dict_id]}
+            requests.post(url=config.socketio_url, data=data)
 
-        state.selected_chain_preset = state.displayed_chain_preset
-        state.selected_preset = 0
+            # Update other clients of our change
+            sio.emit(dict_reload_interface, data)
+            sio.emit(dict_pedal_config_request, {})
 
-        display.show_selected_preset(state.get_selected_preset())
+            state.selected_chain_preset = state.displayed_chain_preset
+            state.selected_preset = 0
+
+            display.show_selected_preset(state.get_selected_preset())
 
 
 def select_preset(up):
@@ -263,8 +285,33 @@ def shutdown():
     os.system('sudo shutdown -h now')
 
 
+def tap_on():
+    global tap_tempo
+    global state
+
+    tap_tempo.enable(state.bpm)
+
+    display.tap_mode(tap_tempo.tempo)
+
+
+def tap_off():
+    global tap_tempo
+    tap_tempo.disable()
+
+    #TODO: Send the tempo to the pedal
+    print(tap_tempo.tempo)
+
+    #TODO: Reset the screen
+
+
 def up():
-    select_preset(True)
+    global tap_tempo
+
+    if tap_tempo.enabled:
+        tap_tempo.tap()
+        display.tap_mode(tap_tempo.tempo)
+    else:
+        select_preset(True)
 
 
 ###########################
@@ -388,6 +435,7 @@ if __name__ == '__main__':
     up_button.when_pressed = up    
 
     down_button.when_pressed = down
+    down_button.when_held = tap_on
 
     select_button.when_pressed = select
 
@@ -404,7 +452,7 @@ if __name__ == '__main__':
     if preset_button != None:
         preset_button.when_pressed = change_preset_type
     else:
-        up_button.when_held = change_preset_type    
+        up_button.when_held = change_preset_type        
 
     sio.wait()
 
