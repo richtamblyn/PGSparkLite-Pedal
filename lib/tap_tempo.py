@@ -2,20 +2,31 @@
 # Tap Tempo Helper Class
 #########################
 
-from datetime import datetime
+from time import time
 
 class TapTempo:
-    def __init__(self):
-        self.start_tap_time = datetime.now()
+    def __init__(self):        
         self.enabled = False
-        self.tap_count = 0
-        self.tempo = 0
+        self.times = []
 
+
+    def addtime(self):        
+        t = time()
+        if len(self.times) == 0:
+            tdiff = 0  # initial seed
+        else:
+            tdiff = t - self.times[-1][0]
+        return (t, tdiff)
+
+
+    def averagetimes(self):
+        averagetime = sum([row[1] for row in self.times])/float(len(self.times))
+        self.tempo = (1.0/(averagetime/60.0))        
 
     def enable(self, current_tempo):
         self.tempo = current_tempo
         self.enabled = True
-        self.tap_count = 0
+        self.times = []
 
 
     def disable(self):
@@ -23,17 +34,9 @@ class TapTempo:
 
 
     def tap(self):        
-        self.tap_count += 1
-
-        if self.tap_count == 1:
-            self.start_tap_time = datetime.now()
-            return
-
-        if self.tap_count > 4:
-            now_tap_time = datetime.now()
-            difference = (now_tap_time - self.start_tap_time)            
-            self.tempo = (60 * self.tap_count / difference.total_seconds())
-            print('Original tempo: ' + str(self.tempo))
-            self.tempo = self.tempo / 3
-            print('Fixed tempo: ' + str(self.tempo))
-            self.tap_count = 0            
+        self.times.append(self.addtime())
+        
+        if len(self.times) > 1:
+            if self.times[0][1] == 0 or len(self.times) > 16:
+                del self.times[0]
+            self.averagetimes()
