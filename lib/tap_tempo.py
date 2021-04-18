@@ -37,6 +37,6 @@ class TapTempo:
         self.times.append(self.addtime())
         
         if len(self.times) > 1:
-            if self.times[0][1] == 0 or len(self.times) > 16:
+            if self.times[0][1] == 0 or len(self.times) > 8:
                 del self.times[0]
             self.averagetimes()
