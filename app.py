@@ -142,6 +142,28 @@ def toggle_led(effect_type, state):
 # Switch Functions
 ###################
 
+def change_preset_type():
+    global state
+
+    if state.preset_mode == dict_amp_preset:
+        state.chain_presets = get_user_presets()
+
+        if len(state.chain_presets) == 0:
+            # User does not have any custom presets currently
+            return
+
+        state.preset_mode = dict_user_preset        
+        
+        name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
+
+        display.show_unselected_preset(
+            dict_user_preset + str(state.displayed_chain_preset), name)
+    else:
+        state.preset_mode = dict_amp_preset
+        display.show_unselected_preset(
+            dict_amp_preset + str(state.displayed_preset))
+
+
 def delay():
     pedal_toggle(dict_delay)
 
@@ -234,28 +256,6 @@ def select_preset(up):
             display.show_unselected_preset(
                 dict_user_preset + str(state.displayed_chain_preset), name
             )
-
-
-def change_preset_type():
-    global state
-
-    if state.preset_mode == dict_amp_preset:
-        state.chain_presets = get_user_presets()
-
-        if len(state.chain_presets) == 0:
-            # User does not have any custom presets currently
-            return
-
-        state.preset_mode = dict_user_preset        
-        
-        name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
-
-        display.show_unselected_preset(
-            dict_user_preset + str(state.displayed_chain_preset), name)
-    else:
-        state.preset_mode = dict_amp_preset
-        display.show_unselected_preset(
-            dict_amp_preset + str(state.displayed_preset))
 
 
 def shutdown():
