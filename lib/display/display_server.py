@@ -65,6 +65,12 @@ class DisplayServer:
                     request_item.params[0], request_item.params[1], request_item.params[2])
             elif request_item.type == 'tap_mode':
                 self.display.tap_mode(request_item.params[0])
+            elif request_item.type == 'update_bpm':
+                self.display.update_bpm(request_item.params[0])
+
+    def update_bpm(self, bpm):
+        request = DisplayRequest('update_bpm', (bpm,))
+        self.process_queue.put_nowait(request)
 
 
 class DisplayRequest:

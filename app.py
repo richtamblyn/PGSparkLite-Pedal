@@ -17,13 +17,13 @@ import socketio
 from gpiozero import LED, Button
 
 import config
-from lib.common import (dict_amp_preset, dict_BPM, dict_chain_preset,
-                        dict_change_preset, dict_connection_failed,
-                        dict_connection_lost, dict_connection_message,
-                        dict_connection_success, dict_delay, dict_drive,
-                        dict_effect_type, dict_id, dict_message, dict_mod,
-                        dict_name, dict_Name, dict_Off, dict_On,
-                        dict_pedal_config_request, dict_pedal_connect,
+from lib.common import (dict_amp_preset, dict_BPM, dict_bpm, dict_bpm_change,
+                        dict_chain_preset, dict_change_preset,
+                        dict_connection_failed, dict_connection_lost,
+                        dict_connection_message, dict_connection_success,
+                        dict_delay, dict_drive, dict_effect_type, dict_id,
+                        dict_message, dict_mod, dict_name, dict_Name, dict_Off,
+                        dict_On, dict_pedal_config_request, dict_pedal_connect,
                         dict_pedal_status, dict_preset, dict_preset_id,
                         dict_refresh_onoff, dict_reload_interface, dict_reverb,
                         dict_state, dict_toggle_effect_onoff,
@@ -296,11 +296,14 @@ def tap_on():
 
 def tap_off():
     global tap_tempo
+    global state
     tap_tempo.disable()
 
-    #TODO: Send the tempo to the pedal    
-    #TODO: Reset the screen
-
+    data = {dict_bpm: tap_tempo.get_tempo()}
+    requests.post(url=config.socketio_url + '/bpm', data=data)
+    
+    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = tap_tempo.get_tempo())
+    
 
 def up():
     global tap_tempo
@@ -335,6 +338,13 @@ def disconnect():
 #############
 # Callbacks
 #############
+
+@sio.on(dict_bpm_change)
+def bpm_change(data):
+    global state
+    state.bpm = int(data[dict_bpm])
+    display.update_bpm(state.bpm)    
+
 
 @sio.on(dict_connection_lost)
 def connection_lost(data):
@@ -451,14 +461,7 @@ if __name__ == '__main__':
         preset_button.when_pressed = change_preset_type
     else:
         up_button.when_held = change_preset_type        
-
-    ##########################
-    # Tests can be fired here 
-    ##########################
-
-    #time.sleep(2)
-
-    #tap_on()
+    
 
     ##########################
     # End of tests

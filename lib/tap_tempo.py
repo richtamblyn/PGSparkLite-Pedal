@@ -8,6 +8,7 @@ class TapTempo:
     def __init__(self):        
         self.enabled = False
         self.times = []
+        self.tempo = 0
 
 
     def addtime(self):        
@@ -21,16 +22,21 @@ class TapTempo:
 
     def averagetimes(self):
         averagetime = sum([row[1] for row in self.times])/float(len(self.times))
-        self.tempo = (1.0/(averagetime/60.0))        
-
-    def enable(self, current_tempo):
-        self.tempo = current_tempo
-        self.enabled = True
-        self.times = []
+        self.tempo = (1.0/(averagetime/60.0))            
 
 
     def disable(self):
         self.enabled = False
+
+    
+    def enable(self, current_tempo):
+        self.tempo = current_tempo
+        self.enabled = True
+        self.times = []
+        
+
+    def get_tempo(self):
+        return int("{:.0f}".format(self.tempo))
 
 
     def tap(self):        

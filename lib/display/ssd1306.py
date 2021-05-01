@@ -91,3 +91,8 @@ class SSD1306_Display:
         self.draw.text((0, 15), "{:.0f}".format(tempo), font=self.preset_mode_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
+
+    def update_bpm(self, bpm):
+        # BPM not supported
+        pass
+
