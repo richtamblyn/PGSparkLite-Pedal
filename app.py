@@ -161,6 +161,10 @@ def toggle_led(effect_type, state):
 
 def change_preset_type():
     global state
+    global tap_tempo
+
+    if tap_tempo.enabled:
+        return
 
     if state.preset_mode == dict_amp_preset:
         state.chain_presets = get_user_presets()
@@ -186,7 +190,12 @@ def delay():
 
 
 def down():
-    select_preset(False)
+    global tap_tempo
+
+    if tap_tempo.enabled:
+        return
+    else:
+        select_preset(False)
 
 
 def drive():
