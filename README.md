@@ -21,6 +21,7 @@ The Pedal software is currently at version 2 and is supported by both versions o
 - Press Up footswitch for 2 seconds to cycle between User and Amp presets.
 - Press the Modulation Pedal footswitch for 5 seconds to nicely shutdown the pedal.
 - OLED Display - Shows status messages and selected Amp/User Preset
+- Press Down footswitch for 2 seconds to change to Tap Tempo mode. Tap Up footswitch to set tempo. Tap Select footswitch to send new tempo to the Amp.
 
 Hardware recommendations and wiring guide for Version 1 hardware can be found here -> https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Hardware-Recommendations-and-Wiring-Guide-(Hardware-Version-1)
 
@@ -56,4 +57,4 @@ They allow the user to communicate with their Spark 40 amp via a web browser ove
 
 ## Future Development Ideas
 
-- Support Tap tempo functionality
+See the [Issues](https://github.com/richtamblyn/PGSparkLite-Pedal/issues) for what could be added next...
