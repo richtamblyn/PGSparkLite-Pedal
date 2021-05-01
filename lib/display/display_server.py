@@ -45,6 +45,10 @@ class DisplayServer:
         request = DisplayRequest('show_unselected_preset', (preset, name, bpm))
         self.process_queue.put_nowait(request)
 
+    def tap_mode(self, tempo):
+        request = DisplayRequest('tap_mode', (tempo,))
+        self.process_queue.put_nowait(request)
+
     def queue_processor(self):
         while True:
             request_item = self.process_queue.get(True)
@@ -58,7 +62,15 @@ class DisplayServer:
                     request_item.params[0], request_item.params[1], request_item.params[2])
             elif request_item.type == 'show_unselected_preset':
                 self.display.show_unselected_preset(
-                    request_item.params[0], request_item.params[1], request_item.params[2])            
+                    request_item.params[0], request_item.params[1], request_item.params[2])
+            elif request_item.type == 'tap_mode':
+                self.display.tap_mode(request_item.params[0])
+            elif request_item.type == 'update_bpm':
+                self.display.update_bpm(request_item.params[0])
+
+    def update_bpm(self, bpm):
+        request = DisplayRequest('update_bpm', (bpm,))
+        self.process_queue.put_nowait(request)
 
 
 class DisplayRequest:

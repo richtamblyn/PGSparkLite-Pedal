@@ -20,3 +20,4 @@ lib/__pycache__/pedal_state.cpython-39.pyc
 lib/display/__pycache__/__init__.cpython-39.pyc
 lib/display/__pycache__/hd44780.cpython-39.pyc
 lib/display/__pycache__/ssd1306.cpython-39.pyc
+lib/__pycache__/tap_tempo.cpython-37.pyc

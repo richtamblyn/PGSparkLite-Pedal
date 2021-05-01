@@ -5,6 +5,7 @@
 from RPLCD.i2c import CharLCD
 from lib.display.hd44780_large_font import HD44780_Large_Font
 
+
 class HD44780_Display:
     def __init__(self, i2c_address, port_expander, display_height, display_width):
 
@@ -14,8 +15,6 @@ class HD44780_Display:
         self.big_font = HD44780_Large_Font(self.lcd)
 
         self.last_cache = None
-
-        pass
 
     def clear_screen(self):
         self.lcd.clear()
@@ -32,7 +31,7 @@ class HD44780_Display:
 
         self.lcd.clear()
         self.big_font.write_string(preset)
-        self.lcd.cursor_pos = (3,0)                
+        self.lcd.cursor_pos = (3, 0)
 
         if name != None:
             if len(name) > 20:
@@ -41,9 +40,26 @@ class HD44780_Display:
             self.lcd.write_string(name)
 
         if bpm != None:
-            self.lcd.cursor_pos = (0,13)
-            self.lcd.write_string('BPM:' + bpm)
+            self.lcd.cursor_pos = (0, 13)
+            self.lcd.write_string('BPM:' + str(bpm))
 
     def show_unselected_preset(self, preset, name=None, bpm=None):
         preset = preset + '*'
         self.show_selected_preset(preset, name, bpm)
+
+    def tap_mode(self, tempo):
+        if self.last_cache == tempo:
+            return
+        else:
+            self.last_cache = tempo
+
+        self.lcd.clear()
+        self.big_font.write_string("{:.0f}".format(tempo))
+
+        self.lcd.cursor_pos = (3, 0)
+        self.lcd.write_string('Tap Tempo')
+
+    def update_bpm(self, bpm):
+        if bpm != None:
+            self.lcd.cursor_pos = (0, 13)
+            self.lcd.write_string('BPM:' + str(bpm))

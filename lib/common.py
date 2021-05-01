@@ -1,4 +1,6 @@
 dict_amp_preset = 'A'
+dict_bpm = 'bpm'
+dict_bpm_change = 'bpm-change'
 dict_BPM = 'BPM'
 dict_chain_preset = 'chain_preset'
 dict_change_preset = 'change_preset'

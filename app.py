@@ -9,6 +9,7 @@
 
 import os
 import time
+from datetime import datetime
 from signal import SIGINT, signal
 
 import requests
@@ -16,23 +17,24 @@ import socketio
 from gpiozero import LED, Button
 
 import config
-from lib.common import (dict_amp_preset, dict_BPM, dict_chain_preset,
-                        dict_change_preset, dict_connection_failed,
-                        dict_connection_lost, dict_connection_message,
-                        dict_connection_success, dict_delay, dict_drive,
-                        dict_effect_type, dict_id, dict_message, dict_mod,
-                        dict_name, dict_Name, dict_Off, dict_On,
-                        dict_pedal_config_request, dict_pedal_connect,
+from lib.common import (dict_amp_preset, dict_BPM, dict_bpm, dict_bpm_change,
+                        dict_chain_preset, dict_change_preset,
+                        dict_connection_failed, dict_connection_lost,
+                        dict_connection_message, dict_connection_success,
+                        dict_delay, dict_drive, dict_effect_type, dict_id,
+                        dict_message, dict_mod, dict_name, dict_Name, dict_Off,
+                        dict_On, dict_pedal_config_request, dict_pedal_connect,
                         dict_pedal_status, dict_preset, dict_preset_id,
                         dict_refresh_onoff, dict_reload_interface, dict_reverb,
                         dict_state, dict_toggle_effect_onoff,
                         dict_update_onoff, dict_update_preset,
                         dict_user_preset)
+from lib.display.display_server import DisplayServer
 from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_no_connection, msg_pgsparklite_ok,
                           msg_shutting_down)
 from lib.pedal_state import PedalState
-from lib.display.display_server import DisplayServer
+from lib.tap_tempo import TapTempo
 
 ########
 # Setup
@@ -44,24 +46,39 @@ state = PedalState()
 
 display = DisplayServer(config)
 
+tap_tempo = TapTempo()
+
+# Single touch to move up presets, hold for 2 seconds to change preset type
 up_button = Button(pin=config.up_button_gpio, hold_time=2)
-down_button = Button(pin=config.down_button_gpio)
+
+# Single touch to move down presets, hold for 2 seconds to enable tap tempo mode
+down_button = Button(pin=config.down_button_gpio, hold_time=2)
+
+# Single touch to select preset or if tap_mode, send tap tempo to the amp
 select_button = Button(pin=config.select_button_gpio)
 
-drive_led = LED(pin=config.drive_led_gpio)
+# Single touch to turn drive pedal on/off
 drive_button = Button(pin=config.drive_button_gpio)
+drive_led = LED(pin=config.drive_led_gpio)
 
-delay_led = LED(pin=config.delay_led_gpio)
+# Single touch to turn delay pedal on/off
 delay_button = Button(pin=config.delay_button_gpio)
+delay_led = LED(pin=config.delay_led_gpio)
 
 mod_led = LED(pin=config.mod_led_gpio)
+
+# Single touch to turn mod pedal on/off, hold for 5 seconds to shutdown the pedal
 mod_button = Button(pin=config.mod_button_gpio, hold_time=5)
 
 # Test for optional reverb switch and LED (Hardware v2)
-try:
-    reverb_led = LED(pin=config.reverb_led_gpio)
+try:    
+    # Single touch to turn reverb pedal on/off
     reverb_button = Button(pin=config.reverb_button_gpio)
+
+    # Single touch to change preset type
     preset_button = Button(pin=config.preset_button_gpio)
+
+    reverb_led = LED(pin=config.reverb_led_gpio)
 except:
     reverb_led = None
     reverb_button = None
@@ -142,6 +159,28 @@ def toggle_led(effect_type, state):
 # Switch Functions
 ###################
 
+def change_preset_type():
+    global state
+
+    if state.preset_mode == dict_amp_preset:
+        state.chain_presets = get_user_presets()
+
+        if len(state.chain_presets) == 0:
+            # User does not have any custom presets currently
+            return
+
+        state.preset_mode = dict_user_preset        
+        
+        name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
+
+        display.show_unselected_preset(
+            dict_user_preset + str(state.displayed_chain_preset), name)
+    else:
+        state.preset_mode = dict_amp_preset
+        display.show_unselected_preset(
+            dict_amp_preset + str(state.displayed_preset))
+
+
 def delay():
     pedal_toggle(dict_delay)
 
@@ -171,24 +210,29 @@ def reverb():
 
 
 def select():
-    global state
+    global tap_tempo
 
-    if state.preset_mode == dict_amp_preset:
-        preset_select(state.displayed_preset-1)
-        state.selected_chain_preset = 0
-    else:
-        preset = state.chain_presets[state.displayed_chain_preset-1]
-        data = {dict_preset_id: preset[dict_id]}
-        requests.post(url=config.socketio_url, data=data)
+    if tap_tempo.enabled:
+        tap_off()
+    else:        
+        global state
 
-        # Update other clients of our change
-        sio.emit(dict_reload_interface, data)
-        sio.emit(dict_pedal_config_request, {})
+        if state.preset_mode == dict_amp_preset:
+            preset_select(state.displayed_preset-1)
+            state.selected_chain_preset = 0
+        else:
+            preset = state.chain_presets[state.displayed_chain_preset-1]
+            data = {dict_preset_id: preset[dict_id]}
+            requests.post(url=config.socketio_url, data=data)
 
-        state.selected_chain_preset = state.displayed_chain_preset
-        state.selected_preset = 0
+            # Update other clients of our change
+            sio.emit(dict_reload_interface, data)
+            sio.emit(dict_pedal_config_request, {})
 
-        display.show_selected_preset(state.get_selected_preset())
+            state.selected_chain_preset = state.displayed_chain_preset
+            state.selected_preset = 0
+
+            display.show_selected_preset(state.get_selected_preset())
 
 
 def select_preset(up):
@@ -236,35 +280,39 @@ def select_preset(up):
             )
 
 
-def change_preset_type():
-    global state
-
-    if state.preset_mode == dict_amp_preset:
-        state.chain_presets = get_user_presets()
-
-        if len(state.chain_presets) == 0:
-            # User does not have any custom presets currently
-            return
-
-        state.preset_mode = dict_user_preset        
-        
-        name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
-
-        display.show_unselected_preset(
-            dict_user_preset + str(state.displayed_chain_preset), name)
-    else:
-        state.preset_mode = dict_amp_preset
-        display.show_unselected_preset(
-            dict_amp_preset + str(state.displayed_preset))
-
-
 def shutdown():
     display.display_status(msg_shutting_down)
     os.system('sudo shutdown -h now')
 
 
+def tap_on():
+    global tap_tempo
+    global state
+
+    tap_tempo.enable(float(state.bpm))
+
+    display.tap_mode(tap_tempo.tempo)
+
+
+def tap_off():
+    global tap_tempo
+    global state
+    tap_tempo.disable()
+
+    data = {dict_bpm: tap_tempo.get_tempo()}
+    requests.post(url=config.socketio_url + '/bpm', data=data)
+    
+    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = tap_tempo.get_tempo())
+    
+
 def up():
-    select_preset(True)
+    global tap_tempo
+
+    if tap_tempo.enabled:
+        tap_tempo.tap()
+        display.tap_mode(tap_tempo.tempo)
+    else:
+        select_preset(True)
 
 
 ###########################
@@ -290,6 +338,13 @@ def disconnect():
 #############
 # Callbacks
 #############
+
+@sio.on(dict_bpm_change)
+def bpm_change(data):
+    global state
+    state.bpm = int(data[dict_bpm])
+    display.update_bpm(state.bpm)    
+
 
 @sio.on(dict_connection_lost)
 def connection_lost(data):
@@ -388,6 +443,7 @@ if __name__ == '__main__':
     up_button.when_pressed = up    
 
     down_button.when_pressed = down
+    down_button.when_held = tap_on
 
     select_button.when_pressed = select
 
@@ -404,7 +460,8 @@ if __name__ == '__main__':
     if preset_button != None:
         preset_button.when_pressed = change_preset_type
     else:
-        up_button.when_held = change_preset_type    
+        up_button.when_held = change_preset_type        
+        
 
     sio.wait()
 
