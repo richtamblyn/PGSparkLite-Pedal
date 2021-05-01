@@ -57,7 +57,7 @@ down_button = Button(pin=config.down_button_gpio, hold_time=2)
 # Single touch to select preset or if tap_mode, send tap tempo to the amp
 select_button = Button(pin=config.select_button_gpio)
 
-#Single touch to turn drive pedal on/off
+# Single touch to turn drive pedal on/off
 drive_button = Button(pin=config.drive_button_gpio)
 drive_led = LED(pin=config.drive_led_gpio)
 
@@ -461,11 +461,7 @@ if __name__ == '__main__':
         preset_button.when_pressed = change_preset_type
     else:
         up_button.when_held = change_preset_type        
-    
-
-    ##########################
-    # End of tests
-    ##########################
+        
 
     sio.wait()
 
