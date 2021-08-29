@@ -391,24 +391,31 @@ def pedal_status(data):
     # Listen for status updates from the Amp or Interface and update OLED/LEDs as necessary
     global state
     
-    if data[dict_chain_preset] != 0:
-        state.preset_mode = dict_user_preset
-        state.selected_chain_preset = get_user_preset_index(data[dict_chain_preset]) + 1
-        state.displayed_chain_preset = state.selected_chain_preset
-    else:
-        state.preset_mode = dict_amp_preset
-        state.selected_preset = int(data[dict_preset]) + 1
-        state.displayed_preset = state.selected_preset
+    try:
+        if data == {}:        
+            return
 
-    state.bpm = data[dict_BPM]
-    state.name = data[dict_Name]
+        if data[dict_chain_preset] != 0:
+            state.preset_mode = dict_user_preset
+            state.selected_chain_preset = get_user_preset_index(data[dict_chain_preset]) + 1
+            state.displayed_chain_preset = state.selected_chain_preset
+        else:
+            state.preset_mode = dict_amp_preset
+            state.selected_preset = int(data[dict_preset]) + 1
+            state.displayed_preset = state.selected_preset
 
-    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = state.bpm)
+        state.bpm = data[dict_BPM]
+        state.name = data[dict_Name]
 
-    toggle_led(dict_drive, data[dict_drive])
-    toggle_led(dict_delay, data[dict_delay])
-    toggle_led(dict_mod, data[dict_mod])
-    toggle_led(dict_reverb, data[dict_reverb])    
+        display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = state.bpm)
+
+        toggle_led(dict_drive, data[dict_drive])
+        toggle_led(dict_delay, data[dict_delay])
+        toggle_led(dict_mod, data[dict_mod])
+        toggle_led(dict_reverb, data[dict_reverb])    
+    except Exception as err:
+        print('Failed on callback')
+        print(err)
 
 
 @sio.on(dict_refresh_onoff)
