@@ -71,7 +71,7 @@ mod_led = LED(pin=config.mod_led_gpio)
 mod_button = Button(pin=config.mod_button_gpio, hold_time=5)
 
 # Test for optional reverb switch and LED (Hardware v2)
-try:    
+try:
     # Single touch to turn reverb pedal on/off
     reverb_button = Button(pin=config.reverb_button_gpio)
 
@@ -97,6 +97,7 @@ except:
 ####################
 # Utility Functions
 ####################
+
 
 def clean_exit():
     drive_led.on()
@@ -129,7 +130,7 @@ def get_user_preset_index(id):
         if preset[dict_id] == id:
             return count
 
-        count +=1
+        count += 1
 
 
 def keyboard_exit_handler(signal_received, frame):
@@ -182,8 +183,8 @@ def change_preset_type():
             # User does not have any custom presets currently
             return
 
-        state.preset_mode = dict_user_preset        
-        
+        state.preset_mode = dict_user_preset
+
         name = state.chain_presets[state.displayed_chain_preset-1][dict_name]
 
         display.show_unselected_preset(
@@ -232,7 +233,7 @@ def select():
 
     if tap_tempo.enabled:
         tap_off()
-    else:        
+    else:
         global state
 
         if state.preset_mode == dict_amp_preset:
@@ -268,7 +269,8 @@ def select_preset(up):
 
         if state.displayed_preset == state.selected_preset:
             display.show_selected_preset(
-                dict_amp_preset + str(state.selected_preset), state.name, state.bpm
+                dict_amp_preset +
+                str(state.selected_preset), state.name, state.bpm
             )
         else:
             display.show_unselected_preset(
@@ -290,7 +292,8 @@ def select_preset(up):
 
         if state.displayed_chain_preset == state.selected_chain_preset:
             display.show_selected_preset(
-                dict_user_preset + str(state.selected_chain_preset), name, state.bpm
+                dict_user_preset +
+                str(state.selected_chain_preset), name, state.bpm
             )
         else:
             display.show_unselected_preset(
@@ -319,9 +322,10 @@ def tap_off():
 
     data = {dict_bpm: tap_tempo.get_tempo()}
     requests.post(url=config.socketio_url + '/bpm', data=data)
-    
-    display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = tap_tempo.get_tempo())
-    
+
+    display.show_selected_preset(
+        state.get_selected_preset(), name=state.name, bpm=tap_tempo.get_tempo())
+
 
 def up():
     global tap_tempo
@@ -361,7 +365,7 @@ def disconnect():
 def bpm_change(data):
     global state
     state.bpm = int(data[dict_bpm])
-    display.update_bpm(state.bpm)    
+    display.update_bpm(state.bpm)
 
 
 @sio.on(dict_connection_lost)
@@ -399,14 +403,15 @@ def connection_message(data):
 def pedal_status(data):
     # Listen for status updates from the Amp or Interface and update OLED/LEDs as necessary
     global state
-    
+
     try:
-        if data == {}:        
+        if data == {}:
             return
 
         if data[dict_chain_preset] != 0:
             state.preset_mode = dict_user_preset
-            state.selected_chain_preset = get_user_preset_index(data[dict_chain_preset]) + 1
+            state.selected_chain_preset = get_user_preset_index(
+                data[dict_chain_preset]) + 1
             state.displayed_chain_preset = state.selected_chain_preset
         else:
             state.preset_mode = dict_amp_preset
@@ -416,12 +421,13 @@ def pedal_status(data):
         state.bpm = data[dict_BPM]
         state.name = data[dict_Name]
 
-        display.show_selected_preset(state.get_selected_preset(), name = state.name, bpm = state.bpm)
+        display.show_selected_preset(
+            state.get_selected_preset(), name=state.name, bpm=state.bpm)
 
         toggle_led(dict_drive, data[dict_drive])
         toggle_led(dict_delay, data[dict_delay])
         toggle_led(dict_mod, data[dict_mod])
-        toggle_led(dict_reverb, data[dict_reverb])    
+        toggle_led(dict_reverb, data[dict_reverb])
     except Exception as err:
         print('Failed on callback')
         print(err)
@@ -449,26 +455,28 @@ def update_preset_display(data):
 # Background threads
 #####################
 
+
 def expression_pedal_listener(adc):
     adc.start_adc(0, gain=2)
 
-    value = convert_voltage(adc.get_last_result())
-    print("Initial value ", value)
+    value = convert_voltage(adc.get_last_result())    
     precision = 0.005
 
     while(True):
         change = convert_voltage(adc.get_last_result())
         if change > (value + precision) or change < (value - precision):
-            sio.emit("expression_pedal", change)
-            value = change
-            print("Expression change - ", value)
+            value = change            
+            try:
+                sio.emit("expression_pedal", change)
+            except:
+                print("Connection lost to server")
 
         time.sleep(0.15)
 
 
 def convert_voltage(value):
     range = (config.expression_max_voltage - config.expression_min_voltage)
-    return round((((value - config.expression_min_voltage) * 1) / range),5)
+    return round((((value - config.expression_min_voltage) * 1) / range), 5)
 
 
 if __name__ == '__main__':
@@ -490,7 +498,7 @@ if __name__ == '__main__':
         pass
 
     # Set up the footswitch functions
-    up_button.when_pressed = up    
+    up_button.when_pressed = up
 
     down_button.when_pressed = down
     down_button.when_held = tap_on
