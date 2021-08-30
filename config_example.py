@@ -73,3 +73,16 @@ mod_button_gpio = 13
 # reverb_led_gpio = 18
 # reverb_button_gpio = 24
 # preset_button_gpio = 23
+
+############################
+# Expression Pedal Support
+# -------------------------
+# Requires an ADS1115 board
+############################
+
+expression_pedal = False
+
+# Voltage range can vary by pedal, adjust max and min
+# to suit to make changes on the Spark more accurate
+expression_max_voltage = 32767
+expression_min_voltage = 10
