@@ -84,6 +84,15 @@ except:
     reverb_button = None
     preset_button = None
 
+# Test for expression pedal
+try:
+    expression_pedal = config.expression_pedal
+
+    if expression_pedal == True:
+        import Adafruit_ADS1x15
+        adc = Adafruit_ADS1x15.ADS1115(busnum=4)
+except:
+    expression_pedal = False
 
 ####################
 # Utility Functions
@@ -435,7 +444,32 @@ def update_preset_display(data):
     # We no longer process this update and instead wait for the status
     # of the pedals before changing the display and LED states.
     pass
-    
+
+#####################
+# Background threads
+#####################
+
+def expression_pedal_listener(adc):
+    adc.start_adc(0, gain=2)
+
+    value = convert_voltage(adc.get_last_result())
+    print("Initial value ", value)
+    precision = 0.005
+
+    while(True):
+        change = convert_voltage(adc.get_last_result())
+        if change > (value + precision) or change < (value - precision):
+            sio.emit("expression_pedal", change)
+            value = change
+            print("Expression change - ", value)
+
+        time.sleep(0.15)
+
+
+def convert_voltage(value):
+    range = (config.expression_max_voltage - config.expression_min_voltage)
+    return round((((value - config.expression_min_voltage) * 1) / range),5)
+
 
 if __name__ == '__main__':
     signal(SIGINT, keyboard_exit_handler)
@@ -476,8 +510,11 @@ if __name__ == '__main__':
     if preset_button != None:
         preset_button.when_pressed = change_preset_type
     else:
-        up_button.when_held = change_preset_type        
-        
+        up_button.when_held = change_preset_type
+
+    if expression_pedal == True:
+        # Enable listener
+        task = sio.start_background_task(expression_pedal_listener, adc)
 
     sio.wait()
 
