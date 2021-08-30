@@ -457,19 +457,20 @@ def update_preset_display(data):
 
 
 def expression_pedal_listener(adc):
-    adc.start_adc(0, gain=2)
+    adc.start_adc(config.expression_adc_channel,
+                  gain=config.expression_adc_gain)
 
-    value = convert_voltage(adc.get_last_result())    
-    precision = 0.005
+    value = convert_voltage(adc.get_last_result())
+    precision = config.expression_precision
 
     while(True):
         change = convert_voltage(adc.get_last_result())
         if change > (value + precision) or change < (value - precision):
-            value = change            
+            value = change
             try:
                 sio.emit("expression_pedal", change)
             except:
-                print("Connection lost to server")
+                print("ERROR: Could not send change!")
 
         time.sleep(0.15)
 
