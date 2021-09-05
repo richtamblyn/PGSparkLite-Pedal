@@ -47,6 +47,12 @@ Version 1 Hardware - https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/PGSpa
 
 Version 2 Hardware - https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/PGSparkLite-Pedal-User-Guide-(Hardware-Version-2)
 
+### 5. Optional Projects
+
+Want to get even more out of your PGSparkLite-Pedal? Here's some additional things you could do:
+
+-   [Expression Pedal Support - Control effect parameters with your foot!](https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Expression-Pedal-Support-(Optional))
+
 ## Architecture
 
 The PGSparkLite web interface and PGSparkLite-Pedal code take the place of the official Positive Grid mobile app. 
