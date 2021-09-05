@@ -8,13 +8,13 @@ GAIN = 1
 adc.start_adc(0, gain=GAIN)
 print("PGSparkLite-Pedal - Expression Pedal Calibrator")
 print("-----------------------------------------------")
-print("Move your expression pedal to the top and bottom of its range while we measure the voltage output for 60 seconds.")
+print("Move your expression pedal to the top and bottom of its range while we measure the voltage output for 20 seconds.")
 
 max = 0
 min = 0
 
 start = time.time()
-while (time.time() - start) <= 60.0:    
+while (time.time() - start) <= 20.0:    
     value = adc.get_last_result()
 
     if value > max:
@@ -22,6 +22,8 @@ while (time.time() - start) <= 60.0:
     if value < max:
         if value < min or min == 0:
             min = value    
+
+    print("Value is ", value)
     time.sleep(0.5)
 
 adc.stop_adc()
