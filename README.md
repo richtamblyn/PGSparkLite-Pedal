@@ -1,8 +1,8 @@
 # PGSparkLite Pedal
 
-This project extends the functionality of the PGSparkLite web interface (https://github.com/richtamblyn/PGSparkLite) to allow control of a Positive Grid Spark 40 amp using physical footswitches, On/Off status LEDs and supports an OLED or LCD display.
+This project extends the functionality of the PGSparkLite web interface (https://github.com/richtamblyn/PGSparkLite) to allow control of a Positive Grid Spark 40 amp using physical footswitches, expression pedal, On/Off status LEDs and supports an OLED or LCD display.
 
-![PGSparkLite Pedal Prototype](https://raw.githubusercontent.com/wiki/richtamblyn/PGSparkLite-Pedal/assets/images/v2/Pedal_v2_Hardware.jpg)
+![PGSparkLite Pedal](https://raw.githubusercontent.com/wiki/richtamblyn/PGSparkLite-Pedal/assets/images/PGSparkLite_v3_Hardware.jpg)
 
 ## Getting Started
 
@@ -49,9 +49,11 @@ Version 2 Hardware - https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/PGSpa
 
 ### 5. Optional Projects
 
-Want to get even more out of your PGSparkLite-Pedal? Here's some additional things you could do:
+Want to get even more out of your PGSparkLite-Pedal? Here's some additional things you can do:
 
 -   [Expression Pedal Support - Control effect parameters with your foot!](https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Expression-Pedal-Support-(Optional))
+
+-   [3D Print your Pedal enclosure](https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/3D-Print-your-Pedal-enclosure)
 
 ## Architecture
 
