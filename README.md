@@ -53,7 +53,7 @@ Want to get even more out of your PGSparkLite-Pedal? Here's some additional thin
 
 -   [Expression Pedal Support - Control effect parameters with your foot!](https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Expression-Pedal-Support-(Optional))
 
--   [3D Print your Pedal enclosure](https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/3D-Print-your-Pedal-enclosure)
+-   [3D Print your PGSparkLite-Pedal enclosure](https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/3D-Print-your-PGSparkLite-Pedal-enclosure)
 
 ## Architecture
 
