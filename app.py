@@ -375,7 +375,8 @@ def connect():
 
 
 @sio.event
-def connect_error():
+def connect_error(message):
+    print('event connect_error',message)
     display.display_status(msg_no_connection)
 
 
