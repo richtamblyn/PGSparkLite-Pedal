@@ -476,6 +476,10 @@ def expression_pedal_listener(adc):
 
 
 def convert_voltage(value):
+    if value<config.expression_min_voltage:
+        value=config.expression_min_voltage
+    elif value>config.expression_max_voltage:
+        value=config.expression_max_voltage
     range = (config.expression_max_voltage - config.expression_min_voltage)
     return round((((value - config.expression_min_voltage) * 1) / range), 5)
 
