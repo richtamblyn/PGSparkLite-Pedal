@@ -487,6 +487,8 @@ def convert_voltage(value):
 if __name__ == '__main__':
     signal(SIGINT, keyboard_exit_handler)
 
+    mod_button.when_held = shutdown
+
     display.display_status(msg_booting)
     while not state.connected_to_server:
         try:
@@ -515,7 +517,6 @@ if __name__ == '__main__':
     delay_button.when_pressed = delay
 
     mod_button.when_pressed = mod
-    mod_button.when_held = shutdown
 
     if reverb_button != None:
         reverb_button.when_pressed = reverb
