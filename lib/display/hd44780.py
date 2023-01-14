@@ -20,6 +20,7 @@ class HD44780_Display:
         self.lcd.clear()
 
     def display_status(self, status):
+        self.last_cache = None
         self.lcd.clear()
         self.lcd.write_string(status)
 
@@ -62,4 +63,7 @@ class HD44780_Display:
     def update_bpm(self, bpm):
         if bpm != None:
             self.lcd.cursor_pos = (0, 13)
-            self.lcd.write_string('BPM:' + str(bpm))
+            str_bpm=str(bpm)
+            if len(str_bpm==2):
+                str_bpm+=' '
+            self.lcd.write_string('BPM:' + str_bpm)
