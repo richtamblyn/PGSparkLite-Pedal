@@ -21,6 +21,7 @@ class DisplayServer:
                     config.i2c_address, config.port_expander, config.display_height, config.display_width)
         except:
             # Default to v1 OLED display
+            print("Fallback to v1 OLED")
             from lib.display.ssd1306 import SSD1306_Display
             self.display = SSD1306_Display(config.i2c_address, config.display_height,
                                            config.font, config.status_size, config.preset_size)
