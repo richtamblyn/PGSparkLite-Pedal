@@ -35,6 +35,25 @@ from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_shutting_down)
 from lib.pedal_state import PedalState
 from lib.tap_tempo import TapTempo
+from functools import wraps
+
+button_throttle=0.15
+
+def throttle(throttle_seconds=0):
+    def throttle_decorator(fn):
+        time_of_last_call = 0
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            if throttle_seconds==0:
+                return fn(*args, **kwargs)
+            else:
+                now = time.time()
+                nonlocal time_of_last_call
+                if now - time_of_last_call > throttle_seconds:
+                    time_of_last_call = now
+                    return fn(*args, **kwargs)
+        return wrapper
+    return throttle_decorator
 
 ########
 # Setup
@@ -169,6 +188,7 @@ def toggle_led(effect_type, state):
 # Switch Functions
 ###################
 
+@throttle(button_throttle)
 def change_preset_type():
     global state
     global tap_tempo
@@ -195,10 +215,12 @@ def change_preset_type():
             dict_amp_preset + str(state.displayed_preset))
 
 
+@throttle(button_throttle)
 def delay():
     pedal_toggle(dict_delay)
 
 
+@throttle(button_throttle)
 def down():
     global tap_tempo
 
@@ -208,10 +230,12 @@ def down():
         select_preset(False)
 
 
+@throttle(button_throttle)
 def drive():
     pedal_toggle(dict_drive)
 
 
+@throttle(button_throttle)
 def mod():
     pedal_toggle(dict_mod)
 
@@ -224,10 +248,12 @@ def preset_select(preset):
     sio.emit(dict_change_preset, {dict_preset: str(preset)})
 
 
+@throttle(button_throttle)
 def reverb():
     pedal_toggle(dict_reverb)
 
 
+@throttle(button_throttle)
 def select():
     global tap_tempo
 
@@ -327,6 +353,7 @@ def tap_off():
         state.get_selected_preset(), name=state.name, bpm=tap_tempo.get_tempo())
 
 
+@throttle(button_throttle)
 def up():
     global tap_tempo
 
