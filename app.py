@@ -530,7 +530,9 @@ if __name__ == '__main__':
     do_connect()
 
     while not state.connected_to_amp:
-        pass
+        time.sleep(0.5)
+        print('state not connected amp')
+
 
     # Set up the footswitch functions
     up_button.when_pressed = up
