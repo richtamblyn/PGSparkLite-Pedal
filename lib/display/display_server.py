@@ -28,25 +28,39 @@ class DisplayServer:
 
         # Setup queue processor thread
         self.process_queue = queue.Queue()
+        self.stopped=False
         threading.Thread(target=self.queue_processor, daemon=True).start()
 
+    def stop(self):
+        self.stopped=True
+
     def clear_screen(self):
+        if self.stopped:
+            return
         request = DisplayRequest('clear_screen', None)
         self.process_queue.put_nowait(request)
 
     def display_status(self, status):
+        if self.stopped:
+            return
         request = DisplayRequest('display_status', (status,))
         self.process_queue.put_nowait(request)
 
     def show_selected_preset(self, preset, name=None, bpm=None):
+        if self.stopped:
+            return
         request = DisplayRequest('show_selected_preset', (preset, name, bpm))
         self.process_queue.put_nowait(request)
 
     def show_unselected_preset(self, preset, name=None, bpm=None):
+        if self.stopped:
+            return
         request = DisplayRequest('show_unselected_preset', (preset, name, bpm))
         self.process_queue.put_nowait(request)
 
     def tap_mode(self, tempo):
+        if self.stopped:
+            return
         request = DisplayRequest('tap_mode', (tempo,))
         self.process_queue.put_nowait(request)
 
@@ -70,6 +84,8 @@ class DisplayServer:
                 self.display.update_bpm(request_item.params[0])
 
     def update_bpm(self, bpm):
+        if self.stopped:
+            return
         request = DisplayRequest('update_bpm', (bpm,))
         self.process_queue.put_nowait(request)
 

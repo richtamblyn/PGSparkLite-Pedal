@@ -329,6 +329,7 @@ def select_preset(up):
 
 def shutdown():
     display.display_status(msg_shutting_down)
+    display.stop()
     os.system('sudo shutdown -h now')
 
 
