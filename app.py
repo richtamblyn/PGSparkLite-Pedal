@@ -153,9 +153,12 @@ def get_user_preset_index(id):
 
 
 def keyboard_exit_handler(signal_received, frame):
-    sio.disconnect()
-    sio.wait()
+    if state.connected_to_server:
+        sio.disconnect()
+        # sio.wait()
+
     clean_exit()
+    exit(1)
 
 
 def toggle_led(effect_type, state):
