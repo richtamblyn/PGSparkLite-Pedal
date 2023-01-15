@@ -35,6 +35,25 @@ from lib.messages import (msg_booting, msg_disconnected, msg_is_amp_on,
                           msg_shutting_down)
 from lib.pedal_state import PedalState
 from lib.tap_tempo import TapTempo
+from functools import wraps
+
+button_throttle=0.15
+
+def throttle(throttle_seconds=0):
+    def throttle_decorator(fn):
+        time_of_last_call = 0
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            if throttle_seconds==0:
+                return fn(*args, **kwargs)
+            else:
+                now = time.time()
+                nonlocal time_of_last_call
+                if now - time_of_last_call > throttle_seconds:
+                    time_of_last_call = now
+                    return fn(*args, **kwargs)
+        return wrapper
+    return throttle_decorator
 
 ########
 # Setup
@@ -134,9 +153,12 @@ def get_user_preset_index(id):
 
 
 def keyboard_exit_handler(signal_received, frame):
-    sio.disconnect()
-    sio.wait()
+    if state.connected_to_server:
+        sio.disconnect()
+        # sio.wait()
+
     clean_exit()
+    exit(1)
 
 
 def toggle_led(effect_type, state):
@@ -169,6 +191,7 @@ def toggle_led(effect_type, state):
 # Switch Functions
 ###################
 
+@throttle(button_throttle)
 def change_preset_type():
     global state
     global tap_tempo
@@ -195,10 +218,12 @@ def change_preset_type():
             dict_amp_preset + str(state.displayed_preset))
 
 
+@throttle(button_throttle)
 def delay():
     pedal_toggle(dict_delay)
 
 
+@throttle(button_throttle)
 def down():
     global tap_tempo
 
@@ -208,10 +233,12 @@ def down():
         select_preset(False)
 
 
+@throttle(button_throttle)
 def drive():
     pedal_toggle(dict_drive)
 
 
+@throttle(button_throttle)
 def mod():
     pedal_toggle(dict_mod)
 
@@ -224,10 +251,12 @@ def preset_select(preset):
     sio.emit(dict_change_preset, {dict_preset: str(preset)})
 
 
+@throttle(button_throttle)
 def reverb():
     pedal_toggle(dict_reverb)
 
 
+@throttle(button_throttle)
 def select():
     global tap_tempo
 
@@ -303,6 +332,7 @@ def select_preset(up):
 
 def shutdown():
     display.display_status(msg_shutting_down)
+    display.stop()
     os.system('sudo shutdown -h now')
 
 
@@ -327,6 +357,7 @@ def tap_off():
         state.get_selected_preset(), name=state.name, bpm=tap_tempo.get_tempo())
 
 
+@throttle(button_throttle)
 def up():
     global tap_tempo
 
@@ -348,7 +379,8 @@ def connect():
 
 
 @sio.event
-def connect_error():
+def connect_error(message):
+    print('event connect_error',message)
     display.display_status(msg_no_connection)
 
 
@@ -476,12 +508,18 @@ def expression_pedal_listener(adc):
 
 
 def convert_voltage(value):
+    if value<config.expression_min_voltage:
+        value=config.expression_min_voltage
+    elif value>config.expression_max_voltage:
+        value=config.expression_max_voltage
     range = (config.expression_max_voltage - config.expression_min_voltage)
     return round((((value - config.expression_min_voltage) * 1) / range), 5)
 
 
 if __name__ == '__main__':
     signal(SIGINT, keyboard_exit_handler)
+
+    mod_button.when_held = shutdown
 
     display.display_status(msg_booting)
     while not state.connected_to_server:
@@ -496,7 +534,9 @@ if __name__ == '__main__':
     do_connect()
 
     while not state.connected_to_amp:
-        pass
+        time.sleep(0.5)
+        print('state not connected amp')
+
 
     # Set up the footswitch functions
     up_button.when_pressed = up
@@ -511,7 +551,6 @@ if __name__ == '__main__':
     delay_button.when_pressed = delay
 
     mod_button.when_pressed = mod
-    mod_button.when_held = shutdown
 
     if reverb_button != None:
         reverb_button.when_pressed = reverb
